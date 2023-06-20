@@ -12,7 +12,7 @@ import (
 	"github.com/mum4k/termdash/terminal/terminalapi"
 )
 
-const newTick = 10 * time.Millisecond
+const newTick = 100 * time.Millisecond
 
 type TUIMode int
 
@@ -22,13 +22,6 @@ const (
 	TUI_DEFAULT TUIMode = iota
 	TUI_SETTINGS
 )
-
-var SettingsButtons = map[string]rune{
-	"CPU_SET":    '1',
-	"GC_SET":     '2',
-	"Other_SET":  '3',
-	"Memory_SET": '4',
-}
 
 type TUI struct {
 	Term *tcell.Terminal
@@ -55,13 +48,15 @@ func InitTUI(term *tcell.Terminal, tick time.Duration) *TUI {
 		Tick: tick,
 	}
 	//
-	tui.Main, _ = container.New(term, container.ID("MAIN"),
+	tui.Main, _ = container.New(
+		term, container.ID("MAIN"),
 		container.Border(linestyle.Round),
 		container.BorderTitle("TERMON"),
 		container.BorderTitleAlignCenter(),
 
 		container.BorderColor(cell.ColorWhite),
-		container.FocusedColor(cell.ColorWhite))
+		container.FocusedColor(cell.ColorWhite),
+	)
 	//
 	tui.InitStorage()
 	tui.CPU = tui.InitWindow("CPU", cell.ColorRed, CPUMetrics)

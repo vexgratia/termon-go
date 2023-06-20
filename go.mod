@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/mum4k/termdash v0.18.0
-	github.com/vexgratia/collection-go v0.0.0-20230614231219-17a1acfe9a21
+	github.com/vexgratia/collection-go v0.0.0-20230619102459-12f6f630029f
 )
 
 require (

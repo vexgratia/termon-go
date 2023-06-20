@@ -1,16 +1,21 @@
 package termon
 
 import (
+	"fmt"
+
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
+	"github.com/mum4k/termdash/container/grid"
 	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/linechart"
+	"github.com/mum4k/termdash/widgets/text"
+	dcll "github.com/vexgratia/collection-go/models/generic/lists/circular/doubly"
 )
 
 type WindowMode int
 
-type WindowModeFunc func(w *Window) []container.Option
+type WindowLayout func(w *Window) []container.Option
 
 const (
 	WINDOW_DEFAULT WindowMode = iota
@@ -18,15 +23,29 @@ const (
 )
 
 type Window struct {
-	TUI     *TUI
-	Name    string
-	Color   cell.Color
-	Layouts map[WindowMode]WindowModeFunc
-	Mode    WindowMode
-	Metrics []string
-	Tracked string
-	Buttons []*button.Button
-	Chart   *linechart.LineChart
+	TUI      *TUI
+	Name     string
+	Color    cell.Color
+	Layouts  map[WindowMode]WindowLayout
+	Mode     WindowMode
+	Metrics  []string
+	Scroller *dcll.List[string]
+	Row      *WindowRow
+	Display  *WindowDisplay
+}
+
+func (w *Window) Update() {
+	w.UpdateRow()
+	w.UpdateDisplay()
+}
+func (w *Window) CurrentMetricName() string {
+	return w.Scroller.Head.Value
+}
+func (w *Window) CurrentMetric() *Metric {
+	return w.TUI.Storage.Metrics[w.CurrentMetricName()]
+}
+func (w *Window) Opts() []container.Option {
+	return w.Layouts[w.Mode](w)
 }
 
 func (tui *TUI) InitWindow(name string, color cell.Color, metrics []string) *Window {
@@ -34,52 +53,25 @@ func (tui *TUI) InitWindow(name string, color cell.Color, metrics []string) *Win
 		TUI:   tui,
 		Name:  name,
 		Color: color,
-		Layouts: map[WindowMode]WindowModeFunc{
-			WINDOW_DEFAULT: DefaultMode,
+		Layouts: map[WindowMode]WindowLayout{
+			WINDOW_DEFAULT: DefaultLayout,
 		},
 		Metrics: metrics,
-		Tracked: metrics[0],
 	}
-	window.Buttons = window.MakeButtons()
-	window.Chart = window.MakeChart()
-	window.SetMode()
+	window.Scroller = window.MakeScroller()
+	window.Row = window.InitRow()
+	window.Display = window.InitDisplay()
 	return window
 }
-
-func (w *Window) MakeButtons() []*button.Button {
-	buttons := []*button.Button{}
-	for _, name := range w.Metrics {
-		b, _ := button.New(
-			name,
-			func() error {
-				return nil
-			},
-			button.Height(1),
-			button.DisableShadow(),
-			button.FillColor(w.Color),
-		)
-		buttons = append(buttons, b)
+func (w *Window) MakeScroller() *dcll.List[string] {
+	scroller := dcll.New[string]()
+	for _, metric := range w.Metrics {
+		scroller.Push(metric)
 	}
-	return buttons
+	return scroller
 }
 
-func (w *Window) MakeChart() *linechart.LineChart {
-	chart, _ := linechart.New(
-		linechart.AxesCellOpts(cell.FgColor(cell.ColorWhite)),
-		linechart.YLabelCellOpts(cell.FgColor(cell.ColorWhite)),
-		linechart.XLabelCellOpts(cell.FgColor(cell.ColorWhite)),
-	)
-	return chart
-}
-
-func (w *Window) SetMode() {
-	w.TUI.Main.Update(w.Name, w.Opts()...)
-}
-func (w *Window) Opts() []container.Option {
-	return w.Layouts[w.Mode](w)
-}
-
-func DefaultMode(w *Window) []container.Option {
+func DefaultLayout(w *Window) []container.Option {
 	return []container.Option{
 		container.ID(w.Name),
 		container.Border(linestyle.Round),
@@ -87,23 +79,166 @@ func DefaultMode(w *Window) []container.Option {
 		container.BorderTitleAlignCenter(),
 
 		container.BorderColor(w.Color),
-		container.FocusedColor(w.Color),
+		container.FocusedColor(cell.ColorWhite),
 		container.SplitHorizontal(
 			container.Top(
-				container.ID(w.Name+"_BUTTONS"),
+				w.RowLayout()...,
 			),
 			container.Bottom(
-				container.ID(w.Name+"_CHART"),
-				container.PlaceWidget(w.Chart),
+				w.ChartLayout()...,
 			),
 			container.SplitPercent(30),
 		),
 	}
 }
 
-func (w *Window) UpdateChart() {
-	w.Chart.Series("serie", w.TUI.Storage.Metrics[w.Tracked].Queue.Data, linechart.SeriesCellOpts(cell.FgColor(w.Color)))
+type WindowRow struct {
+	Settings *button.Button
+	Next     *button.Button
+	Current  *text.Text
+	Prev     *button.Button
 }
-func (w *Window) Update() {
-	w.UpdateChart()
+
+func (w *Window) UpdateRow() {
+	metric := w.CurrentMetric()
+	name := fmt.Sprintf("%s: ", w.CurrentMetricName())
+	data := fmt.Sprintf("%v\n", metric.Queue.Data[metric.Queue.Len()-1])
+	w.Row.Current.Reset()
+	w.Row.Current.Write(name, text.WriteCellOpts(cell.FgColor(cell.ColorWhite)))
+	w.Row.Current.Write(data, text.WriteCellOpts(cell.FgColor(w.Color)))
+}
+
+func (w *Window) InitRow() *WindowRow {
+	row := &WindowRow{
+		Settings: w.MakeSettingsButton(),
+		Current:  w.MakeCurrentText(),
+	}
+	row.Prev, row.Next = w.MakeScrollButtons()
+	return row
+}
+func (w *Window) MakeSettingsButton() *button.Button {
+	button, _ := button.New(
+		"SET",
+		func() error {
+			w.Mode = WINDOW_SETTINGS
+			return nil
+		},
+		button.Height(2),
+		button.FillColor(w.Color),
+	)
+	return button
+}
+
+func (w *Window) MakeScrollButtons() (*button.Button, *button.Button) {
+	prev, _ := button.New(
+		"<---",
+		func() error {
+			w.Scroller.ScrollPrev()
+			return nil
+		},
+		button.Height(2),
+		button.FillColor(w.Color),
+	)
+	next, _ := button.New(
+		"--->",
+		func() error {
+			w.Scroller.ScrollNext()
+			return nil
+		},
+		button.Height(2),
+		button.FillColor(w.Color),
+	)
+	return prev, next
+}
+func (w *Window) MakeCurrentText() *text.Text {
+	current, _ := text.New(
+		text.WrapAtRunes(),
+	)
+	return current
+}
+func (w *Window) RowLayout() []container.Option {
+	builder := grid.New()
+	builder.Add(
+		grid.ColWidthPerc(15,
+			grid.Widget(w.Row.Settings,
+				container.Border(linestyle.None),
+			),
+		),
+	)
+	builder.Add(
+		grid.ColWidthPerc(15,
+			grid.Widget(w.Row.Prev,
+				container.Border(linestyle.None),
+			),
+		),
+	)
+	builder.Add(
+		grid.ColWidthPerc(55,
+			grid.Widget(w.Row.Current,
+				container.Border(linestyle.Round),
+			),
+		),
+	)
+	builder.Add(
+		grid.ColWidthPerc(15,
+			grid.Widget(w.Row.Next,
+				container.Border(linestyle.None),
+			),
+		),
+	)
+	opts, _ := builder.Build()
+	return opts
+}
+
+type WindowDisplay struct {
+	Scroller *dcll.List[string]
+	Chart    *linechart.LineChart
+}
+
+func (w *Window) UpdateDisplay() {
+	w.Display.Chart.Series(
+		"serie",
+		w.CurrentMetric().Queue.Data,
+		linechart.SeriesCellOpts(cell.FgColor(w.Color)),
+	)
+}
+func (w *Window) InitDisplay() *WindowDisplay {
+	display := &WindowDisplay{
+		Chart: w.MakeChart(),
+	}
+	return display
+}
+
+func (w *Window) MakeChart() *linechart.LineChart {
+	chart, _ := linechart.New(
+		linechart.AxesCellOpts(cell.FgColor(cell.ColorWhite)),
+		linechart.YLabelCellOpts(cell.FgColor(cell.ColorWhite)),
+		linechart.XLabelCellOpts(cell.FgColor(cell.ColorWhite)),
+		linechart.YAxisAdaptive(),
+	)
+	return chart
+}
+func (w *Window) ChartLayout() []container.Option {
+	builder := grid.New()
+	builder.Add(
+		grid.RowHeightPerc(90,
+			grid.Widget(w.Display.Chart,
+				container.Border(linestyle.Round),
+			),
+		),
+	)
+	opts, _ := builder.Build()
+	return opts
+}
+
+func (w *Window) MakeMetricButton(metric string) *button.Button {
+	button, _ := button.New(
+		metric,
+		func() error {
+			return nil
+		},
+		button.Height(2),
+		button.FillColor(w.Color),
+	)
+	return button
 }

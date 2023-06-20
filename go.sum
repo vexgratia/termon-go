@@ -9,12 +9,13 @@ github.com/mattn/go-runewidth v0.0.14 h1:+xnbZSEeDbOIg5/mE6JF0w6n9duR1l3/WmbinWV
 github.com/mattn/go-runewidth v0.0.14/go.mod h1:Jdepj2loyihRzMpdS35Xk/zdY8IAYHsh153qUoGf23w=
 github.com/mum4k/termdash v0.18.0 h1:wpy3FKcVV5s2TOoMTKzqQXwL5VClZIlNrRqZDpeIzBA=
 github.com/mum4k/termdash v0.18.0/go.mod h1:VWL18wLZDKVKF/f4TkMRiKZb9Eg8Ax99PtNuGuRAguw=
-github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.4.4 h1:8TfxU8dW6PdqD27gjM8MVNuicgxIjxpm4K7x4jp8sis=
 github.com/rivo/uniseg v0.4.4/go.mod h1:FN3SvrM+Zdj16jyLfmOkMNblXMcoc8DfTHruCPUcx88=
-github.com/vexgratia/collection-go v0.0.0-20230614231219-17a1acfe9a21 h1:dxXc7O7P1yFZ853/voyH4nx3PbGjSzzLzTHtukD5eBE=
-github.com/vexgratia/collection-go v0.0.0-20230614231219-17a1acfe9a21/go.mod h1:IRQ/LUUgpNJxkiVFc7iraVKtcVXniucdAcb84xO+mrE=
+github.com/vexgratia/collection-go v0.0.0-20230619054744-154d4db8e097 h1:dku0RnEbc+OhYeCsuxLZvW0upWCGycqmUE6qAndfTiA=
+github.com/vexgratia/collection-go v0.0.0-20230619054744-154d4db8e097/go.mod h1:IRQ/LUUgpNJxkiVFc7iraVKtcVXniucdAcb84xO+mrE=
+github.com/vexgratia/collection-go v0.0.0-20230619102459-12f6f630029f h1:VXKWlI1VsDbo2O4jo7SMghQzAOgbwcG+0TqhFFx3HDs=
+github.com/vexgratia/collection-go v0.0.0-20230619102459-12f6f630029f/go.mod h1:IRQ/LUUgpNJxkiVFc7iraVKtcVXniucdAcb84xO+mrE=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
