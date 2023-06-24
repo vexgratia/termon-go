@@ -9,6 +9,7 @@ import (
 const newCapacity = 100
 
 type Metric struct {
+	Name     string
 	Capacity int
 	Queue    *Queue[float64]
 }
@@ -22,23 +23,6 @@ func NewMetric() *Metric {
 		Capacity: newCapacity,
 		Queue:    q,
 	}
-}
-func (m *Metric) Resize(newCap int) {
-	if newCap <= 0 {
-		return
-	}
-	dif := newCap - m.Capacity
-	if dif > 0 {
-		for i := 0; i < dif; i++ {
-			m.Queue.Enqueue(math.NaN())
-		}
-	} else {
-		dif = -dif
-		for i := 0; i < dif; i++ {
-			m.Queue.Dequeue()
-		}
-	}
-	m.Capacity = newCap
 }
 
 var AllMetrics = []string{

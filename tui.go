@@ -30,11 +30,6 @@ type TUI struct {
 	Layouts map[TUIMode]TUIModeFunc
 	Mode    TUIMode
 	//
-	CPU    *Window
-	GC     *Window
-	Other  *Window
-	Memory *Window
-	//
 	Tick    time.Duration
 	Storage *Storage
 }
@@ -59,16 +54,9 @@ func InitTUI(term *tcell.Terminal, tick time.Duration) *TUI {
 	)
 	//
 	tui.InitStorage()
-	tui.CPU = tui.InitWindow("CPU", cell.ColorRed, CPUMetrics)
-	tui.GC = tui.InitWindow("GC", cell.ColorGreen, GCMetrics)
-	tui.Other = tui.InitWindow("Other", cell.ColorBlue, OtherMetrics)
-	tui.Memory = tui.InitWindow("Memory", cell.ColorYellow, MemoryMetrics)
-	tui.SetMode()
 	return tui
 }
-func (tui *TUI) SetMode() {
-	tui.Main.Update("MAIN", tui.Opts()...)
-}
+
 func (tui *TUI) Opts() []container.Option {
 	return tui.Layouts[tui.Mode](tui)
 }
@@ -77,22 +65,14 @@ func DefaulMode(tui *TUI) []container.Option {
 		container.SplitHorizontal(
 			container.Top(
 				container.SplitVertical(
-					container.Left(
-						tui.CPU.Opts()...,
-					),
-					container.Right(
-						tui.GC.Opts()...,
-					),
+					container.Left(),
+					container.Right(),
 				),
 			),
 			container.Bottom(
 				container.SplitVertical(
-					container.Left(
-						tui.Other.Opts()...,
-					),
-					container.Right(
-						tui.Memory.Opts()...,
-					),
+					container.Left(),
+					container.Right(),
 				),
 			),
 		),
@@ -110,12 +90,9 @@ func (tui *TUI) Run() {
 	go tui.GetUpdates()
 	termdash.Run(ctx, tui.Term, tui.Main, termdash.KeyboardSubscriber(quitFunc), termdash.RedrawInterval(tui.Storage.Tick))
 }
+
 func (tui *TUI) GetUpdates() {
 	for {
-		tui.CPU.Update()
-		tui.GC.Update()
-		tui.Other.Update()
-		tui.Memory.Update()
 		time.Sleep(tui.Tick)
 	}
 }
