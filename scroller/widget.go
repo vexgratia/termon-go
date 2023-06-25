@@ -9,7 +9,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 	prev, _ := button.New(
 		"<---",
 		func() error {
-			s.List.ScrollPrev()
+			s.List.ScrollNext()
 			return nil
 		},
 		button.Height(2),
@@ -18,7 +18,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 	next, _ := button.New(
 		"--->",
 		func() error {
-			s.List.ScrollNext()
+			s.List.ScrollPrev()
 			return nil
 		},
 		button.Height(2),

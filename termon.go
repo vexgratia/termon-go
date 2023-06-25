@@ -10,41 +10,43 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
+	"github.com/vexgratia/termon-go/metric"
+	storage "github.com/vexgratia/termon-go/storage"
 )
 
 const newTick = 100 * time.Millisecond
 
-type TUIMode int
+type TermonMode int
 
-type TUIModeFunc func(t *TUI) []container.Option
+type TermonModeFunc func(t *Termon) []container.Option
 
 const (
-	TUI_DEFAULT TUIMode = iota
+	TUI_DEFAULT TermonMode = iota
 	TUI_SETTINGS
 )
 
-type TUI struct {
-	Term *tcell.Terminal
+type Termon struct {
+	Terminal *tcell.Terminal
 	//
 	Main    *container.Container
-	Layouts map[TUIMode]TUIModeFunc
-	Mode    TUIMode
+	Layouts map[TermonMode]TermonModeFunc
+	Mode    TermonMode
 	//
 	Tick    time.Duration
-	Storage *Storage
+	Storage *storage.Storage
 }
 
-func InitTUI(term *tcell.Terminal, tick time.Duration) *TUI {
-	tui := &TUI{
-		Term: term,
-		Layouts: map[TUIMode]TUIModeFunc{
-			TUI_DEFAULT: DefaulMode,
+func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
+	tui := &Termon{
+		Terminal: terminal,
+		Layouts: map[TermonMode]TermonModeFunc{
+			TUI_DEFAULT: DefaultMode,
 		},
 		Tick: tick,
 	}
 	//
 	tui.Main, _ = container.New(
-		term, container.ID("MAIN"),
+		terminal, container.ID("MAIN"),
 		container.Border(linestyle.Round),
 		container.BorderTitle("TERMON"),
 		container.BorderTitleAlignCenter(),
@@ -53,14 +55,14 @@ func InitTUI(term *tcell.Terminal, tick time.Duration) *TUI {
 		container.FocusedColor(cell.ColorWhite),
 	)
 	//
-	tui.InitStorage()
+	tui.Storage = storage.New(tick, metric.AllMetrics)
 	return tui
 }
 
-func (tui *TUI) Opts() []container.Option {
-	return tui.Layouts[tui.Mode](tui)
+func (t *Termon) Opts() []container.Option {
+	return t.Layouts[t.Mode](t)
 }
-func DefaulMode(tui *TUI) []container.Option {
+func DefaultMode(tui *Termon) []container.Option {
 	return []container.Option{
 		container.SplitHorizontal(
 			container.Top(
@@ -79,20 +81,19 @@ func DefaulMode(tui *TUI) []container.Option {
 	}
 }
 
-func (tui *TUI) Run() {
+func (t *Termon) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	quitFunc := func(k *terminalapi.Keyboard) {
 		if k.Key == 'q' || k.Key == 'Q' {
 			cancel()
 		}
 	}
-	go tui.Storage.GetUpdates()
-	go tui.GetUpdates()
-	termdash.Run(ctx, tui.Term, tui.Main, termdash.KeyboardSubscriber(quitFunc), termdash.RedrawInterval(tui.Storage.Tick))
+	go t.GetUpdates()
+	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitFunc), termdash.RedrawInterval(t.Storage.Tick))
 }
 
-func (tui *TUI) GetUpdates() {
+func (t *Termon) GetUpdates() {
 	for {
-		time.Sleep(tui.Tick)
+		time.Sleep(t.Tick)
 	}
 }

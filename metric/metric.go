@@ -1,21 +1,22 @@
-package termon
+package metric
 
 import (
 	"math"
 
-	. "github.com/vexgratia/collection-go/models/generic/queue"
+	queue "github.com/vexgratia/collection-go/generic/queue"
 )
 
 const newCapacity = 100
 
 type Metric struct {
 	Name     string
+	Current  float64
 	Capacity int
-	Queue    *Queue[float64]
+	Queue    *queue.Queue[float64]
 }
 
-func NewMetric() *Metric {
-	q := NewQueue[float64]()
+func New() *Metric {
+	q := queue.New[float64]()
 	for i := 0; i < newCapacity; i++ {
 		q.Enqueue(math.NaN())
 	}

@@ -4,20 +4,22 @@ import (
 	"fmt"
 	"runtime/metrics"
 	"time"
+
+	metric "github.com/vexgratia/termon-go/metric"
 )
 
 type Storage struct {
 	Tick    time.Duration
-	Metrics map[string]*Metric
+	Metrics map[string]*metric.Metric
 }
 
-func (tui *TUI) InitStorage() {
-	metrics := make(map[string]*Metric)
-	for _, name := range AllMetrics {
-		metrics[name] = NewMetric()
+func New(tick time.Duration, names []string) *Storage {
+	metrics := make(map[string]*metric.Metric)
+	for _, name := range names {
+		metrics[name] = metric.New()
 	}
-	tui.Storage = &Storage{
-		Tick:    tui.Tick,
+	return &Storage{
+		Tick:    tick,
 		Metrics: metrics,
 	}
 }
@@ -43,16 +45,7 @@ func (s *Storage) Update(samples *[]metrics.Sample) {
 		}
 	}
 }
-func (s *Storage) GetUpdates() {
-	samples := make([]metrics.Sample, len(AllMetrics))
-	for i, name := range AllMetrics {
-		samples[i].Name = name
-	}
-	for {
-		s.Update(&samples)
-		time.Sleep(s.Tick)
-	}
-}
+
 func medianBucket(h *metrics.Float64Histogram) float64 {
 	total := uint64(0)
 	for _, count := range h.Counts {

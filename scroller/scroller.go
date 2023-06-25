@@ -4,12 +4,12 @@ import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/text"
-	dcll "github.com/vexgratia/collection-go/models/generic/lists/circular/doubly"
+	dcl "github.com/vexgratia/collection-go/generic/list/dcl"
 )
 
 type Scroller[T any] struct {
 	Color     cell.Color
-	List      *dcll.List[T]
+	List      *dcl.List[T]
 	Prev      *button.Button
 	Display   *text.Text
 	Next      *button.Button
@@ -25,7 +25,7 @@ func MakeScroller[T any](data []T, color cell.Color, formatter func(data T) []Fo
 		Color:     color,
 		Formatter: formatter,
 	}
-	list := dcll.New[T]()
+	list := dcl.New[T]()
 	for _, data := range data {
 		list.Push(data)
 	}
@@ -35,9 +35,14 @@ func MakeScroller[T any](data []T, color cell.Color, formatter func(data T) []Fo
 }
 
 func (s *Scroller[T]) Current() T {
-	return s.List.Head.Value
+	return s.List.Peek()
 }
-
+func (s *Scroller[T]) ScrollNext() {
+	s.List.ScrollNext()
+}
+func (s *Scroller[T]) ScrollPrev() {
+	s.List.ScrollPrev()
+}
 func (s *Scroller[T]) Update() {
 	pairs := s.Formatter(s.Current())
 	s.Display.Reset()

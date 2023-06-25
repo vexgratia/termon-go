@@ -6,8 +6,8 @@ import (
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/linechart"
 	"github.com/mum4k/termdash/widgets/sparkline"
-	"github.com/vexgratia/termon-go"
-	"github.com/vexgratia/termon-go/scroller"
+	metric "github.com/vexgratia/termon-go/metric"
+	scroller "github.com/vexgratia/termon-go/scroller"
 )
 
 type LayoutFunc func() []container.Option
@@ -15,19 +15,19 @@ type LayoutFunc func() []container.Option
 type Window struct {
 	Name    string
 	Color   cell.Color
-	Metrics []*termon.Metric
+	Metrics []*metric.Metric
 	Layout  LayoutFunc
 	//
 	Settings       *button.Button
 	Return         *button.Button
-	MetricScroller *scroller.Scroller[*termon.Metric]
+	MetricScroller *scroller.Scroller[*metric.Metric]
 	Chart          *linechart.LineChart
 	Spark          *sparkline.SparkLine
 	//
 	ModeScroller *scroller.Scroller[WindowMode]
 }
 
-func MakeWindow(name string, color cell.Color, metrics []*termon.Metric) *Window {
+func MakeWindow(name string, color cell.Color, metrics []*metric.Metric) *Window {
 	window := &Window{
 		Name:    name,
 		Color:   color,
