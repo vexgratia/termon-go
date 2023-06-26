@@ -11,6 +11,7 @@ func (w *Window) MakeSettingsButton() *button.Button {
 		"SET",
 		func() error {
 			w.Layout = WINDOW_SETTINGS
+			w.Update()
 			return nil
 		},
 		button.Height(2),

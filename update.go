@@ -1,14 +1,9 @@
 package termon
 
-import "github.com/mum4k/termdash/container"
-
-type UpdateMessage struct {
-	Name string
-	Opts []container.Option
-}
+import "github.com/vexgratia/termon-go/update"
 
 func (t *Termon) Update() {
-	t.Updates <- UpdateMessage{
+	t.Updates <- update.Message{
 		Name: "MAIN",
 		Opts: t.Opts(),
 	}

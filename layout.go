@@ -1,6 +1,10 @@
 package termon
 
-import "github.com/mum4k/termdash/container"
+import (
+	"github.com/mum4k/termdash/cell"
+	"github.com/mum4k/termdash/container"
+	"github.com/mum4k/termdash/linestyle"
+)
 
 type TermonLayout int
 
@@ -28,4 +32,17 @@ func (t *Termon) DefaultLayout() []container.Option {
 			),
 		),
 	}
+}
+func (t *Termon) MakeMain() *container.Container {
+	main, _ := container.New(
+		t.Terminal,
+		container.ID("MAIN"),
+		container.Border(linestyle.Round),
+		container.BorderTitle("TERMON"),
+		container.BorderTitleAlignCenter(),
+
+		container.BorderColor(cell.ColorWhite),
+		container.FocusedColor(cell.ColorWhite),
+	)
+	return main
 }

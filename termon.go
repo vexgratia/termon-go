@@ -8,12 +8,12 @@ import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/keyboard"
-	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	cache "github.com/vexgratia/termon-go/cache"
+	"github.com/vexgratia/termon-go/cache"
 	"github.com/vexgratia/termon-go/metric"
-	window "github.com/vexgratia/termon-go/window"
+	"github.com/vexgratia/termon-go/update"
+	"github.com/vexgratia/termon-go/window"
 )
 
 type Termon struct {
@@ -27,10 +27,10 @@ type Termon struct {
 	Golang *window.Window
 	Memory *window.Window
 	//
-	Tick    time.Duration
-	Storage *cache.Cache
+	Tick  time.Duration
+	Cache *cache.Cache
 	//
-	Updates chan UpdateMessage
+	Updates chan update.Message
 }
 
 func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
@@ -38,36 +38,29 @@ func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
 		Terminal: terminal,
 		Tick:     tick,
 		Layout:   TERMON_DEFAULT,
+		Updates:  make(chan update.Message, 100),
 	}
 	//
 	termon.LayoutSet = map[TermonLayout]LayoutFunc{
 		TERMON_DEFAULT: termon.DefaultLayout,
 	}
 	//
-	termon.Storage = cache.New(tick)
+	termon.Cache = cache.New()
 	//
-	termon.Main, _ = container.New(
-		terminal, container.ID("MAIN"),
-		container.Border(linestyle.Round),
-		container.BorderTitle("TERMON"),
-		container.BorderTitleAlignCenter(),
-
-		container.BorderColor(cell.ColorWhite),
-		container.FocusedColor(cell.ColorWhite),
-	)
+	termon.Main = termon.MakeMain()
 	//
-	termon.CPU = window.New("CPU", cell.ColorRed, termon.Storage.GetMetrics(metric.CPU))
-	termon.GC = window.New("GC", cell.ColorGreen, termon.Storage.GetMetrics(metric.GC))
-	termon.Golang = window.New("Golang", cell.ColorBlue, termon.Storage.GetMetrics(metric.Golang))
-	termon.Memory = window.New("Memory", cell.ColorYellow, termon.Storage.GetMetrics(metric.Memory))
+	termon.CPU = window.New("CPU", cell.ColorRed, termon.Cache.GetMetrics(metric.CPU), termon.Updates)
+	termon.GC = window.New("GC", cell.ColorGreen, termon.Cache.GetMetrics(metric.GC), termon.Updates)
+	termon.Golang = window.New("Golang", cell.ColorBlue, termon.Cache.GetMetrics(metric.Golang), termon.Updates)
+	termon.Memory = window.New("Memory", cell.ColorYellow, termon.Cache.GetMetrics(metric.Memory), termon.Updates)
 	//
-	termon.Main.Update("MAIN", termon.Opts()...)
 	return termon
 }
 
 func (t *Termon) Opts() []container.Option {
 	return t.LayoutSet[t.Layout]()
 }
+
 func (t *Termon) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	quitter := func(k *terminalapi.Keyboard) {

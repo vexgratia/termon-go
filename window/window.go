@@ -8,6 +8,7 @@ import (
 	"github.com/mum4k/termdash/widgets/sparkline"
 	metric "github.com/vexgratia/termon-go/metric"
 	scroller "github.com/vexgratia/termon-go/scroller"
+	"github.com/vexgratia/termon-go/update"
 )
 
 type Window struct {
@@ -25,9 +26,10 @@ type Window struct {
 	Chart          *linechart.LineChart
 	Spark          *sparkline.SparkLine
 	//
+	Updates chan update.Message
 }
 
-func New(name string, color cell.Color, metrics []*metric.Metric) *Window {
+func New(name string, color cell.Color, metrics []*metric.Metric, updates chan update.Message) *Window {
 	window := &Window{
 		Name:    name,
 		Color:   color,
