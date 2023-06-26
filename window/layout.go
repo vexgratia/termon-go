@@ -6,6 +6,15 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 )
 
+type WindowLayout int
+
+type LayoutFunc func() []container.Option
+
+const (
+	WINDOW_DEFAULT WindowLayout = iota
+	WINDOW_SETTINGS
+)
+
 func (w *Window) DefaultLayout() []container.Option {
 	return []container.Option{
 		container.ID(w.Name),
@@ -21,14 +30,12 @@ func (w *Window) DefaultLayout() []container.Option {
 					container.Left(
 						container.PlaceWidget(w.Settings),
 					),
-					container.Right(
-						w.MetricScroller.Layout()...,
-					),
+					container.Right(w.MetricScroller.Layout()...),
 					container.SplitPercent(20),
 				),
 			),
 			container.Bottom(
-				container.PlaceWidget(w.ModeWidget()),
+				container.PlaceWidget(w.DisplayWidget()),
 			),
 			container.SplitPercent(30),
 		),
@@ -47,9 +54,7 @@ func (w *Window) SettingsLayout() []container.Option {
 			container.Top(
 				container.PlaceWidget(w.Return),
 			),
-			container.Bottom(
-				w.ModeScroller.Layout()...,
-			),
+			container.Bottom(),
 		),
 	}
 }

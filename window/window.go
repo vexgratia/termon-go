@@ -10,13 +10,14 @@ import (
 	scroller "github.com/vexgratia/termon-go/scroller"
 )
 
-type LayoutFunc func() []container.Option
-
 type Window struct {
 	Name    string
 	Color   cell.Color
 	Metrics []*metric.Metric
-	Layout  LayoutFunc
+	//
+	Layout    WindowLayout
+	LayoutSet map[WindowLayout]LayoutFunc
+	Mode      DisplayMode
 	//
 	Settings       *button.Button
 	Return         *button.Button
@@ -24,19 +25,24 @@ type Window struct {
 	Chart          *linechart.LineChart
 	Spark          *sparkline.SparkLine
 	//
-	ModeScroller *scroller.Scroller[WindowMode]
 }
 
-func MakeWindow(name string, color cell.Color, metrics []*metric.Metric) *Window {
+func New(name string, color cell.Color, metrics []*metric.Metric) *Window {
 	window := &Window{
 		Name:    name,
 		Color:   color,
 		Metrics: metrics,
+
+		Layout: WINDOW_DEFAULT,
+	}
+	window.LayoutSet = map[WindowLayout]LayoutFunc{
+		WINDOW_DEFAULT: window.DefaultLayout,
 	}
 	window.Settings = window.MakeSettingsButton()
 	window.Return = window.MakeReturnButton()
-	window.MetricScroller = scroller.MakeScroller(window.Metrics, window.Color, scroller.MetricDisplayFormatter)
-	window.ModeScroller = scroller.MakeScroller(WindowModes, window.Color, ModeFormatter)
 	window.Chart = window.MakeChart()
 	return window
+}
+func (w *Window) Opts() []container.Option {
+	return w.LayoutSet[w.Layout]()
 }

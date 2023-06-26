@@ -2,20 +2,15 @@ package window
 
 import "github.com/mum4k/termdash/widgetapi"
 
-type WindowMode int
+type DisplayMode int
 
 const (
-	LINECHART WindowMode = iota
+	LINECHART DisplayMode = iota
 	SPARKLINE
 )
 
-var WindowModes = []WindowMode{
-	LINECHART,
-	SPARKLINE,
-}
-
-func (w *Window) ModeWidget() widgetapi.Widget {
-	switch w.ModeScroller.Current() {
+func (w *Window) DisplayWidget() widgetapi.Widget {
+	switch w.Mode {
 	case LINECHART:
 		return w.Chart
 	case SPARKLINE:

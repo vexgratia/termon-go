@@ -7,45 +7,46 @@ import (
 	"github.com/mum4k/termdash"
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
+	"github.com/mum4k/termdash/keyboard"
 	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
+	cache "github.com/vexgratia/termon-go/cache"
 	"github.com/vexgratia/termon-go/metric"
-	storage "github.com/vexgratia/termon-go/storage"
-)
-
-const newTick = 100 * time.Millisecond
-
-type TermonMode int
-
-type TermonModeFunc func(t *Termon) []container.Option
-
-const (
-	TUI_DEFAULT TermonMode = iota
-	TUI_SETTINGS
+	window "github.com/vexgratia/termon-go/window"
 )
 
 type Termon struct {
-	Terminal *tcell.Terminal
+	Terminal  *tcell.Terminal
+	Main      *container.Container
+	Layout    TermonLayout
+	LayoutSet map[TermonLayout]LayoutFunc
 	//
-	Main    *container.Container
-	Layouts map[TermonMode]TermonModeFunc
-	Mode    TermonMode
+	CPU    *window.Window
+	GC     *window.Window
+	Golang *window.Window
+	Memory *window.Window
 	//
 	Tick    time.Duration
-	Storage *storage.Storage
+	Storage *cache.Cache
+	//
+	Updates chan UpdateMessage
 }
 
 func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
-	tui := &Termon{
+	termon := &Termon{
 		Terminal: terminal,
-		Layouts: map[TermonMode]TermonModeFunc{
-			TUI_DEFAULT: DefaultMode,
-		},
-		Tick: tick,
+		Tick:     tick,
+		Layout:   TERMON_DEFAULT,
 	}
 	//
-	tui.Main, _ = container.New(
+	termon.LayoutSet = map[TermonLayout]LayoutFunc{
+		TERMON_DEFAULT: termon.DefaultLayout,
+	}
+	//
+	termon.Storage = cache.New(tick)
+	//
+	termon.Main, _ = container.New(
 		terminal, container.ID("MAIN"),
 		container.Border(linestyle.Round),
 		container.BorderTitle("TERMON"),
@@ -55,45 +56,25 @@ func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
 		container.FocusedColor(cell.ColorWhite),
 	)
 	//
-	tui.Storage = storage.New(tick, metric.AllMetrics)
-	return tui
+	termon.CPU = window.New("CPU", cell.ColorRed, termon.Storage.GetMetrics(metric.CPU))
+	termon.GC = window.New("GC", cell.ColorGreen, termon.Storage.GetMetrics(metric.GC))
+	termon.Golang = window.New("Golang", cell.ColorBlue, termon.Storage.GetMetrics(metric.Golang))
+	termon.Memory = window.New("Memory", cell.ColorYellow, termon.Storage.GetMetrics(metric.Memory))
+	//
+	termon.Main.Update("MAIN", termon.Opts()...)
+	return termon
 }
 
 func (t *Termon) Opts() []container.Option {
-	return t.Layouts[t.Mode](t)
+	return t.LayoutSet[t.Layout]()
 }
-func DefaultMode(tui *Termon) []container.Option {
-	return []container.Option{
-		container.SplitHorizontal(
-			container.Top(
-				container.SplitVertical(
-					container.Left(),
-					container.Right(),
-				),
-			),
-			container.Bottom(
-				container.SplitVertical(
-					container.Left(),
-					container.Right(),
-				),
-			),
-		),
-	}
-}
-
 func (t *Termon) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
-	quitFunc := func(k *terminalapi.Keyboard) {
-		if k.Key == 'q' || k.Key == 'Q' {
+	quitter := func(k *terminalapi.Keyboard) {
+		if k.Key == 'q' || k.Key == 'Q' || k.Key == keyboard.KeyEsc {
 			cancel()
 		}
 	}
 	go t.GetUpdates()
-	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitFunc), termdash.RedrawInterval(t.Storage.Tick))
-}
-
-func (t *Termon) GetUpdates() {
-	for {
-		time.Sleep(t.Tick)
-	}
+	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(t.Tick))
 }
