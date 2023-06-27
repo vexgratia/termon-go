@@ -11,11 +11,11 @@ import (
 
 func (w *Window) MetricFormat(m *metric.Metric) []format.TextWithOpts {
 	metric := format.TextWithOpts{
-		Text: m.ShortTag() + ":\n",
+		Text: m.Tag() + ":\n",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	value := format.TextWithOpts{
-		Text: fmt.Sprintf("%f", m.Current),
+		Text: m.CurrentF(),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(w.Color))},
 	}
 	return []format.TextWithOpts{metric, value}

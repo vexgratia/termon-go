@@ -7,7 +7,7 @@ import (
 	metric "github.com/vexgratia/termon-go/metric"
 )
 
-var tick = time.Millisecond * 10
+var tick = time.Millisecond * 100
 
 type Cache struct {
 	Tick    time.Duration
@@ -20,6 +20,7 @@ func New() *Cache {
 	metrics := make(map[string]*metric.Metric)
 	for i, name := range metric.All {
 		metrics[name] = metric.New(name)
+		metrics[name].Parsed = metrics[name].Parse()
 		samples[i].Name = name
 	}
 	return &Cache{

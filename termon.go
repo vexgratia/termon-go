@@ -46,6 +46,7 @@ func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
 	}
 	//
 	termon.Cache = cache.New()
+	termon.Cache.SetTick(termon.Tick)
 	//
 	termon.Main = termon.MakeMain()
 	//

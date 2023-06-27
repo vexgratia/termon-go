@@ -1,8 +1,6 @@
 package window
 
 import (
-	"fmt"
-
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/linestyle"
@@ -57,7 +55,7 @@ func (c *Cell) Update() {
 		return
 	}
 	c.Display.Write(
-		fmt.Sprintf("%f", c.Metric.Current),
+		c.Metric.CurrentF(),
 		text.WriteCellOpts(cell.FgColor(c.Color)),
 	)
 }
@@ -76,7 +74,7 @@ func (c *Cell) Layout() []container.Option {
 	return []container.Option{
 		container.ID(c.Name),
 		container.Border(linestyle.Light),
-		container.BorderTitle(c.Name),
+		container.BorderTitle(" " + c.Metric.Tag() + " "),
 		container.BorderTitleAlignCenter(),
 		container.BorderColor(c.Color),
 		container.FocusedColor(c.Color),

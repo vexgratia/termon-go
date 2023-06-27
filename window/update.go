@@ -15,10 +15,12 @@ func (w *Window) Update() {
 func (w *Window) UpdateWidgets() {
 	w.MetricScroller.Update()
 	w.CapScroller.Update()
-	w.MetricScroller.Current().Capacity = w.CapScroller.Current()
+	metric := w.MetricScroller.Current()
+	metric.Capacity = w.CapScroller.Current()
 	w.Chart.Series("serie",
-		w.MetricScroller.Current().Queue.Collect()[w.MetricScroller.Current().Queue.Len()-w.MetricScroller.Current().Cap():],
-		linechart.SeriesCellOpts(cell.FgColor(w.Color)))
+		metric.Queue.Collect()[metric.Queue.Len()-metric.Cap():],
+		linechart.SeriesCellOpts(cell.FgColor(w.Color)),
+	)
 	for _, cell := range w.Cells {
 		cell.Update()
 	}

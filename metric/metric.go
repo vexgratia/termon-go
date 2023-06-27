@@ -10,6 +10,7 @@ const maxCap = 10000
 
 type Metric struct {
 	Name     string
+	Parsed   Parsed
 	Current  float64
 	Capacity uint32
 	Queue    *queue.Queue[float64]

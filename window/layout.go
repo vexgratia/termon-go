@@ -61,7 +61,7 @@ func (w *Window) CellLayout() []container.Option {
 	builder := grid.New()
 	builder.Add(
 		grid.RowHeightPerc(25,
-			grid.ColWidthPerc(25, grid.Widget(w.Settings)),
+			grid.ColWidthPerc(25, grid.Widget(w.Return)),
 			grid.ColWidthPercWithOpts(25, w.Cells[0].Layout()),
 			grid.ColWidthPercWithOpts(25, w.Cells[1].Layout()),
 			grid.ColWidthPercWithOpts(25, w.Cells[2].Layout()),
