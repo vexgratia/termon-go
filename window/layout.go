@@ -1,7 +1,6 @@
 package window
 
 import (
-	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/linestyle"
 )
@@ -35,7 +34,7 @@ func (w *Window) DefaultLayout() []container.Option {
 				),
 			),
 			container.Bottom(
-				container.PlaceWidget(w.DisplayWidget()),
+				container.PlaceWidget(w.Chart),
 			),
 			container.SplitPercent(30),
 		),
@@ -45,16 +44,14 @@ func (w *Window) SettingsLayout() []container.Option {
 	return []container.Option{
 		container.ID(w.Name),
 		container.Border(linestyle.Round),
-		container.BorderTitle(w.Name + " SETTINGS"),
-		container.BorderTitleAlignCenter(),
-
-		container.BorderColor(cell.ColorGray),
-		container.FocusedColor(cell.ColorGray),
+		container.BorderTitle("SETTINGS"),
 		container.SplitHorizontal(
 			container.Top(
 				container.PlaceWidget(w.Return),
 			),
-			container.Bottom(),
+			container.Bottom(
+				w.CapScroller.Layout()...,
+			),
 		),
 	}
 }

@@ -18,8 +18,7 @@ func (s *Scroller[T]) Layout() []container.Option {
 	builder.Add(
 		grid.ColWidthPerc(60,
 			grid.Widget(s.Display,
-				container.Border(linestyle.Round),
-			),
+				container.Border(linestyle.Light)),
 		),
 	)
 	builder.Add(

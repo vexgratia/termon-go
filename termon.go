@@ -54,6 +54,8 @@ func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
 	termon.Golang = window.New("Golang", cell.ColorBlue, termon.Cache.GetMetrics(metric.Golang), termon.Updates)
 	termon.Memory = window.New("Memory", cell.ColorYellow, termon.Cache.GetMetrics(metric.Memory), termon.Updates)
 	//
+	go termon.Cache.GetUpdates()
+	termon.Update()
 	return termon
 }
 

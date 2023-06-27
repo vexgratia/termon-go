@@ -7,23 +7,25 @@ import (
 )
 
 func (c *Cache) Update() {
+	var current float64
 	metrics.Read(c.Samples)
 	for _, sample := range c.Samples {
 		name, value := sample.Name, sample.Value
 		metric := c.Metrics[name]
 		switch value.Kind() {
 		case metrics.KindUint64:
-			metric.Queue.Enqueue(float64(value.Uint64()))
+			current = float64(value.Uint64())
 		case metrics.KindFloat64:
-			metric.Queue.Enqueue(value.Float64())
+			current = value.Float64()
 		case metrics.KindFloat64Histogram:
-			metric.Queue.Enqueue(medianBucket(value.Float64Histogram()))
+			current = medianBucket(value.Float64Histogram())
 		case metrics.KindBad:
 			panic("bug in runtime/metrics package!")
 		default:
 			fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
 		}
-		metric.Resize(metric.Capacity)
+		metric.Queue.Enqueue(current)
+		metric.Current = current
 	}
 }
 func (c *Cache) GetUpdates() {

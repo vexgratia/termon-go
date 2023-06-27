@@ -24,6 +24,7 @@ func (w *Window) MakeReturnButton() *button.Button {
 		"RETURN",
 		func() error {
 			w.Layout = WINDOW_DEFAULT
+			w.Update()
 			return nil
 		},
 		button.Height(2),

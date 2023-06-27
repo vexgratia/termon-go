@@ -10,6 +10,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 		"<---",
 		func() error {
 			s.List.ScrollNext()
+			s.Update()
 			return nil
 		},
 		button.Height(2),
@@ -19,6 +20,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 		"--->",
 		func() error {
 			s.List.ScrollPrev()
+			s.Update()
 			return nil
 		},
 		button.Height(2),
@@ -30,6 +32,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 func (s *Scroller[T]) MakeDisplay() *text.Text {
 	display, _ := text.New(
 		text.WrapAtRunes(),
+		text.DisableScrolling(),
 	)
 	return display
 }
