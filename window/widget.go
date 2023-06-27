@@ -10,7 +10,7 @@ func (w *Window) MakeSettingsButton() *button.Button {
 	button, _ := button.New(
 		"SET",
 		func() error {
-			w.Layout = WINDOW_SETTINGS
+			w.Layout = WINDOW_CELL
 			w.Update()
 			return nil
 		},
@@ -23,7 +23,7 @@ func (w *Window) MakeReturnButton() *button.Button {
 	button, _ := button.New(
 		"RETURN",
 		func() error {
-			w.Layout = WINDOW_DEFAULT
+			w.Layout = WINDOW_CELL
 			w.Update()
 			return nil
 		},

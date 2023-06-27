@@ -27,6 +27,7 @@ type Window struct {
 	MetricScroller *scroller.Scroller[*metric.Metric]
 	CapScroller    *scroller.Scroller[uint32]
 	Chart          *linechart.LineChart
+	Cells          []*Cell
 	//
 	Updates chan update.Message
 }
@@ -43,9 +44,11 @@ func New(name string, color cell.Color, metrics []*metric.Metric, updates chan u
 	window.LayoutSet = map[WindowLayout]LayoutFunc{
 		WINDOW_DEFAULT:  window.DefaultLayout,
 		WINDOW_SETTINGS: window.SettingsLayout,
+		WINDOW_CELL:     window.CellLayout,
 	}
 	window.MetricScroller = scroller.New(window.Metrics, window.Color, window.MetricFormat)
 	window.CapScroller = scroller.New(capacities, window.Color, window.CapFormat)
+	window.Cells = window.MakeCells()
 	window.Settings = window.MakeSettingsButton()
 	window.Return = window.MakeReturnButton()
 	window.Chart = window.MakeChart()

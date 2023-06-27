@@ -22,7 +22,7 @@ func (w *Window) MetricFormat(m *metric.Metric) []format.TextWithOpts {
 }
 func (w *Window) CapFormat(c uint32) []format.TextWithOpts {
 	init := format.TextWithOpts{
-		Text: "\nchart capacity:\n",
+		Text: "\nDisplay capacity:\n",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	cap := format.TextWithOpts{
@@ -30,7 +30,7 @@ func (w *Window) CapFormat(c uint32) []format.TextWithOpts {
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(w.Color))},
 	}
 	ticks := format.TextWithOpts{
-		Text: "Ticks",
+		Text: "ticks",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	return []format.TextWithOpts{init, cap, ticks}

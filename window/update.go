@@ -19,4 +19,7 @@ func (w *Window) UpdateWidgets() {
 	w.Chart.Series("serie",
 		w.MetricScroller.Current().Queue.Collect()[w.MetricScroller.Current().Queue.Len()-w.MetricScroller.Current().Cap():],
 		linechart.SeriesCellOpts(cell.FgColor(w.Color)))
+	for _, cell := range w.Cells {
+		cell.Update()
+	}
 }
