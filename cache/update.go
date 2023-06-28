@@ -3,7 +3,6 @@ package cache
 import (
 	"fmt"
 	"runtime/metrics"
-	"time"
 )
 
 func (c *Cache) Update() {
@@ -25,11 +24,5 @@ func (c *Cache) Update() {
 			fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
 		}
 		metric.Add(current)
-	}
-}
-func (c *Cache) GetUpdates() {
-	for {
-		c.Update()
-		time.Sleep(c.Tick)
 	}
 }

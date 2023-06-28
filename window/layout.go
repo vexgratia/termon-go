@@ -38,24 +38,31 @@ func (w *Window) ChartLayout() []container.Option {
 func (w *Window) SettingsLayout() []container.Option {
 	builder := grid.New()
 	builder.Add(
-		grid.RowHeightPerc(25,
+		grid.RowHeightPerc(20,
 			grid.ColWidthPerc(50, grid.Widget(w.ChartButton)),
 			grid.ColWidthPerc(50, grid.Widget(w.CellButton)),
 		),
 	)
 
 	builder.Add(
-		grid.RowHeightPerc(25,
+		grid.RowHeightPerc(20,
 			grid.ColWidthPercWithOpts(50, w.CapScroller.Layout()),
 		),
 	)
 	builder.Add(
-		grid.RowHeightPerc(25,
+		grid.RowHeightPerc(20,
 			grid.ColWidthPercWithOpts(50, w.TickScroller.Layout()),
 		),
 	)
 	builder.Add(
-		grid.RowHeightPerc(25),
+		grid.RowHeightPerc(20,
+			grid.ColWidthPercWithOpts(50, w.ShowAvg.Layout()),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(20,
+			grid.ColWidthPercWithOpts(50, w.ShowMax.Layout()),
+		),
 	)
 	opts, _ := builder.Build()
 	return opts

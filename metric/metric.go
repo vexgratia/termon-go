@@ -12,19 +12,26 @@ type Metric struct {
 	Name   string
 	Parsed Parsed
 	//
-	Max     float64
-	Current float64
+	Current    float64
+	Sum        float64
+	Max        float64
+	Avg        *queue.Queue[float64]
+	CurrentAvg float64
 	//
 	Capacity uint32
-	Queue    *queue.Queue[float64]
+	Data     *queue.Queue[float64]
+	//
+	Format func(value float64) string
 }
 
 func New(name string) *Metric {
-	queue := queue.New[float64]()
+	data := queue.New[float64]()
+	avg := queue.New[float64]()
 	return &Metric{
 		Name:     name,
 		Capacity: maxCap,
-		Queue:    queue,
+		Avg:      avg,
+		Data:     data,
 		Current:  math.NaN(),
 	}
 }
@@ -36,9 +43,14 @@ func (m *Metric) Add(value float64) {
 	if value > m.Max {
 		m.Max = value
 	}
-	m.Queue.Enqueue(value)
-	for m.Queue.Len() > m.Cap() {
-		m.Queue.Dequeue()
-	}
 	m.Current = value
+	m.Sum += value
+	m.Data.Enqueue(m.Current)
+	for m.Data.Len() > m.Cap() {
+		deq := m.Data.Dequeue()
+		m.Sum -= deq
+		m.Avg.Dequeue()
+	}
+	m.CurrentAvg = m.Sum / float64(m.Cap())
+	m.Avg.Enqueue(m.CurrentAvg)
 }

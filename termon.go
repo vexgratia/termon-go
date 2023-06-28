@@ -15,7 +15,7 @@ import (
 	"github.com/vexgratia/termon-go/window"
 )
 
-var tick = 1 * time.Millisecond
+var tick = 5 * time.Millisecond
 
 type Termon struct {
 	Terminal *tcell.Terminal

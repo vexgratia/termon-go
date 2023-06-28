@@ -7,20 +7,22 @@ import (
 
 func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 	prev, _ := button.New(
-		"<---",
+		"\u25C0\u2015\u2015\u2015",
 		func() error {
 			s.List.ScrollNext()
 			s.Update()
+			s.Scroll()
 			return nil
 		},
 		button.Height(2),
 		button.FillColor(s.Color),
 	)
 	next, _ := button.New(
-		"--->",
+		"\u2015\u2015\u2015\u25B6",
 		func() error {
 			s.List.ScrollPrev()
 			s.Update()
+			s.Scroll()
 			return nil
 		},
 		button.Height(2),

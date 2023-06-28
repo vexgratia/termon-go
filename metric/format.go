@@ -19,26 +19,28 @@ func (m *Metric) Tag() string {
 	return m.Parsed.Tag
 }
 
-func (m *Metric) CurrentF() string {
+func (m *Metric) Formatter() func(value float64) string {
 	switch m.Parsed.Type {
 	case SECONDS:
-		return FormatSeconds(m.Current)
+		return FormatSeconds
 	case BYTES:
-		return FormatBytes(m.Current)
+		return FormatBytes
 	case CALLS:
-		return FormatCalls(m.Current)
+		return FormatCalls
 	case OBJECTS:
-		return FormatObjects(m.Current)
+		return FormatObjects
 	case NUMBER:
-		return FormatNumber(m.Current)
+		return FormatNumber
 	case CYCLE:
-		return FormatCycle(m.Current)
+		return FormatCycle
 	case CYCLES:
-		return FormatCycles(m.Current)
+		return FormatCycles
 	case THREADS:
-		return FormatThreads(m.Current)
+		return FormatThreads
 	}
-	return fmt.Sprintf("%v", m.Current)
+	return func(value float64) string {
+		return fmt.Sprintf("%v", value)
+	}
 }
 
 func FormatBytes(value float64) string {

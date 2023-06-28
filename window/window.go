@@ -25,7 +25,9 @@ type Window struct {
 	Color   cell.Color
 	Metrics []*metric.Metric
 	//
-	Layout LayoutFunc
+	Layout  LayoutFunc
+	ShowAvg *scroller.Scroller[bool]
+	ShowMax *scroller.Scroller[bool]
 	//
 	Settings       *button.Button
 	MetricScroller *scroller.Scroller[*metric.Metric]
@@ -47,22 +49,29 @@ func New(name string, color cell.Color, metrics []string, updates chan update.Me
 		Color:   color,
 		Updates: updates,
 	}
+	//
+	window.ShowAvg = scroller.New([]bool{false, true}, window.Color, window.AvgScrollerFormat, func() {})
+	window.ShowMax = scroller.New([]bool{false, true}, window.Color, window.MaxScrollerFormat, func() {})
+	//
 	window.Settings = window.MakeSettingsButton()
 	window.ChartButton = window.MakeChartButton()
 	window.CellButton = window.MakeCellButton()
 	//
-	window.TickScroller = scroller.New(ticks, window.Color, window.TickFormat)
-	window.Cache = cache.New(metrics, window.TickScroller.Current())
+	window.TickScroller = scroller.New(ticks, window.Color, window.TickScrollerFormat, func() {})
+	window.Cache = cache.New(metrics)
 	window.Metrics = window.Cache.GetMetrics()
 	//
-	window.MetricScroller = scroller.New(window.Metrics, window.Color, window.MetricFormat)
-	window.CapScroller = scroller.New(capacities, window.Color, window.CapFormat)
-	window.Chart = window.MakeChart()
+	window.MetricScroller = scroller.New(window.Metrics, window.Color, window.MetricScrollerFormat,
+		func() {
+			window.Chart = window.MakeChart(window.MetricScroller.Current())
+			window.UpdateLayout()
+		})
+	window.CapScroller = scroller.New(capacities, window.Color, window.CapScrollerFormat, func() {})
+	window.Chart = window.MakeChart(window.MetricScroller.Current())
 	window.Cells = window.MakeCells()
 	//
-	go window.Cache.GetUpdates()
 	window.Layout = window.ChartLayout
-	window.Update()
+	go window.GetUpdates()
 	return window
 }
 func (w *Window) Opts() []container.Option {

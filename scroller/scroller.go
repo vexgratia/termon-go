@@ -16,12 +16,14 @@ type Scroller[T any] struct {
 	Display   *text.Text
 	Next      *button.Button
 	Formatter func(data T) []format.TextWithOpts
+	Scroll    func()
 }
 
-func New[T any](data []T, color cell.Color, formatter func(data T) []format.TextWithOpts) *Scroller[T] {
+func New[T any](data []T, color cell.Color, formatter func(data T) []format.TextWithOpts, scroll func()) *Scroller[T] {
 	scroller := &Scroller[T]{
 		Color:     color,
 		Formatter: formatter,
+		Scroll:    scroll,
 	}
 	list := dcl.New[T]()
 	for _, data := range data {

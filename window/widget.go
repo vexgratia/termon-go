@@ -1,12 +1,11 @@
 package window
 
 import (
-	"fmt"
-
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/linechart"
 	"github.com/mum4k/termdash/widgets/sparkline"
+	"github.com/vexgratia/termon-go/metric"
 )
 
 func (w *Window) MakeSettingsButton() *button.Button {
@@ -14,7 +13,7 @@ func (w *Window) MakeSettingsButton() *button.Button {
 		"SET",
 		func() error {
 			w.Layout = w.SettingsLayout
-			w.Update()
+			w.UpdateLayout()
 			return nil
 		},
 		button.Height(2),
@@ -29,7 +28,7 @@ func (w *Window) MakeChartButton() *button.Button {
 		"CHART",
 		func() error {
 			w.Layout = w.ChartLayout
-			w.Update()
+			w.UpdateLayout()
 			return nil
 		},
 		button.Height(2),
@@ -44,7 +43,7 @@ func (w *Window) MakeCellButton() *button.Button {
 		"CELL",
 		func() error {
 			w.Layout = w.CellLayout
-			w.Update()
+			w.UpdateLayout()
 			return nil
 		},
 		button.Height(2),
@@ -53,15 +52,13 @@ func (w *Window) MakeCellButton() *button.Button {
 	)
 	return button
 }
-func (w *Window) MakeChart() *linechart.LineChart {
+func (w *Window) MakeChart(metric *metric.Metric) *linechart.LineChart {
 	chart, _ := linechart.New(
 		linechart.AxesCellOpts(cell.FgColor(cell.ColorWhite)),
 		linechart.YLabelCellOpts(cell.FgColor(cell.ColorWhite)),
 		linechart.XLabelCellOpts(cell.FgColor(cell.ColorWhite)),
 		linechart.YAxisFormattedValues(linechart.ValueFormatter(
-			func(value float64) string {
-				return fmt.Sprintf("%5.1G", value)
-			},
+			metric.Format,
 		)),
 		linechart.YAxisAdaptive(),
 	)
