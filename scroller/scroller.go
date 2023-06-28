@@ -30,6 +30,7 @@ func New[T any](data []T, color cell.Color, formatter func(data T) []format.Text
 	scroller.List = list
 	scroller.Prev, scroller.Next = scroller.MakeScrollButtons()
 	scroller.Display = scroller.MakeDisplay()
+	scroller.Update()
 	return scroller
 }
 

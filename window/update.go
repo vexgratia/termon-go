@@ -17,8 +17,9 @@ func (w *Window) UpdateWidgets() {
 	w.CapScroller.Update()
 	metric := w.MetricScroller.Current()
 	metric.Capacity = w.CapScroller.Current()
+	w.Cache.Tick = w.TickScroller.Current() * 1000000
 	w.Chart.Series("serie",
-		metric.Queue.Collect()[metric.Queue.Len()-metric.Cap():],
+		metric.Queue.Collect(),
 		linechart.SeriesCellOpts(cell.FgColor(w.Color)),
 	)
 	for _, cell := range w.Cells {

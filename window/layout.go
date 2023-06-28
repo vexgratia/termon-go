@@ -6,21 +6,13 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 )
 
-type WindowLayout int
-
 type LayoutFunc func() []container.Option
 
-const (
-	WINDOW_DEFAULT WindowLayout = iota
-	WINDOW_SETTINGS
-	WINDOW_CELL
-)
-
-func (w *Window) DefaultLayout() []container.Option {
+func (w *Window) ChartLayout() []container.Option {
 	return []container.Option{
 		container.ID(w.Name),
 		container.Border(linestyle.Round),
-		container.BorderTitle(w.Name),
+		container.BorderTitle(" " + w.Name + " "),
 		container.BorderTitleAlignCenter(),
 
 		container.BorderColor(w.Color),
@@ -42,26 +34,37 @@ func (w *Window) DefaultLayout() []container.Option {
 		),
 	}
 }
+
 func (w *Window) SettingsLayout() []container.Option {
-	return []container.Option{
-		container.ID(w.Name),
-		container.Border(linestyle.Round),
-		container.BorderTitle("SETTINGS"),
-		container.SplitHorizontal(
-			container.Top(
-				container.PlaceWidget(w.Return),
-			),
-			container.Bottom(
-				w.CapScroller.Layout()...,
-			),
+	builder := grid.New()
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPerc(50, grid.Widget(w.ChartButton)),
+			grid.ColWidthPerc(50, grid.Widget(w.CellButton)),
 		),
-	}
+	)
+
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPercWithOpts(50, w.CapScroller.Layout()),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPercWithOpts(50, w.TickScroller.Layout()),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(25),
+	)
+	opts, _ := builder.Build()
+	return opts
 }
 func (w *Window) CellLayout() []container.Option {
 	builder := grid.New()
 	builder.Add(
 		grid.RowHeightPerc(25,
-			grid.ColWidthPerc(25, grid.Widget(w.Return)),
+			grid.ColWidthPerc(25, grid.Widget(w.Settings)),
 			grid.ColWidthPercWithOpts(25, w.Cells[0].Layout()),
 			grid.ColWidthPercWithOpts(25, w.Cells[1].Layout()),
 			grid.ColWidthPercWithOpts(25, w.Cells[2].Layout()),

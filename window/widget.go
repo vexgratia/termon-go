@@ -6,13 +6,14 @@ import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/linechart"
+	"github.com/mum4k/termdash/widgets/sparkline"
 )
 
 func (w *Window) MakeSettingsButton() *button.Button {
 	button, _ := button.New(
 		"SET",
 		func() error {
-			w.Layout = WINDOW_CELL
+			w.Layout = w.SettingsLayout
 			w.Update()
 			return nil
 		},
@@ -22,11 +23,27 @@ func (w *Window) MakeSettingsButton() *button.Button {
 	)
 	return button
 }
-func (w *Window) MakeReturnButton() *button.Button {
+
+func (w *Window) MakeChartButton() *button.Button {
 	button, _ := button.New(
-		"RETURN",
+		"CHART",
 		func() error {
-			w.Layout = WINDOW_DEFAULT
+			w.Layout = w.ChartLayout
+			w.Update()
+			return nil
+		},
+		button.Height(2),
+		button.Width(8),
+		button.FillColor(w.Color),
+	)
+	return button
+}
+
+func (w *Window) MakeCellButton() *button.Button {
+	button, _ := button.New(
+		"CELL",
+		func() error {
+			w.Layout = w.CellLayout
 			w.Update()
 			return nil
 		},
@@ -49,4 +66,10 @@ func (w *Window) MakeChart() *linechart.LineChart {
 		linechart.YAxisAdaptive(),
 	)
 	return chart
+}
+func (w *Window) MakeSpark() *sparkline.SparkLine {
+	spark, _ := sparkline.New(
+		sparkline.Color(w.Color),
+	)
+	return spark
 }

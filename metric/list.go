@@ -26,7 +26,7 @@ var All = []string{
 	"/gc/heap/objects:objects",
 	"/gc/heap/tiny/allocs:objects",
 	"/gc/limiter/last-enabled:gc-cycle",
-	"/gc/pauses:seconds",
+	//"/gc/pauses:seconds",
 	"/gc/stack/starting-size:bytes",
 	"/memory/classes/heap/free:bytes",
 	"/memory/classes/heap/objects:bytes",
@@ -74,7 +74,7 @@ var GC = []string{
 	"/gc/heap/objects:objects",
 	"/gc/heap/tiny/allocs:objects",
 	"/gc/limiter/last-enabled:gc-cycle",
-	"/gc/pauses:seconds",
+	//"/gc/pauses:seconds",
 	"/gc/stack/starting-size:bytes",
 }
 var Golang = []string{

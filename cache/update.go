@@ -24,8 +24,7 @@ func (c *Cache) Update() {
 		default:
 			fmt.Printf("%s: unexpected metric Kind: %v\n", name, value.Kind())
 		}
-		metric.Queue.Enqueue(current)
-		metric.Current = current
+		metric.Add(current)
 	}
 }
 func (c *Cache) GetUpdates() {

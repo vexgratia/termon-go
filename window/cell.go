@@ -56,7 +56,7 @@ func (c *Cell) Update() {
 	}
 	c.Display.Write(
 		c.Metric.CurrentF(),
-		text.WriteCellOpts(cell.FgColor(c.Color)),
+		text.WriteCellOpts(cell.FgColor(cell.ColorWhite)),
 	)
 }
 

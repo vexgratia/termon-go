@@ -10,58 +10,46 @@ import (
 	"github.com/mum4k/termdash/keyboard"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	"github.com/vexgratia/termon-go/cache"
 	"github.com/vexgratia/termon-go/metric"
 	"github.com/vexgratia/termon-go/update"
 	"github.com/vexgratia/termon-go/window"
 )
 
+var tick = 1 * time.Millisecond
+
 type Termon struct {
-	Terminal  *tcell.Terminal
-	Main      *container.Container
-	Layout    TermonLayout
-	LayoutSet map[TermonLayout]LayoutFunc
+	Terminal *tcell.Terminal
+	Main     *container.Container
+	Layout   LayoutFunc
 	//
 	CPU    *window.Window
 	GC     *window.Window
 	Golang *window.Window
 	Memory *window.Window
 	//
-	Tick  time.Duration
-	Cache *cache.Cache
-	//
 	Updates chan update.Message
 }
 
-func New(terminal *tcell.Terminal, tick time.Duration) *Termon {
+func New(terminal *tcell.Terminal) *Termon {
 	termon := &Termon{
 		Terminal: terminal,
-		Tick:     tick,
-		Layout:   TERMON_DEFAULT,
 		Updates:  make(chan update.Message, 100),
 	}
 	//
-	termon.LayoutSet = map[TermonLayout]LayoutFunc{
-		TERMON_DEFAULT: termon.DefaultLayout,
-	}
-	//
-	termon.Cache = cache.New()
-	termon.Cache.SetTick(termon.Tick)
-	//
 	termon.Main = termon.MakeMain()
 	//
-	termon.CPU = window.New("CPU", cell.ColorRed, termon.Cache.GetMetrics(metric.CPU), termon.Updates)
-	termon.GC = window.New("GC", cell.ColorGreen, termon.Cache.GetMetrics(metric.GC), termon.Updates)
-	termon.Golang = window.New("Golang", cell.ColorBlue, termon.Cache.GetMetrics(metric.Golang), termon.Updates)
-	termon.Memory = window.New("Memory", cell.ColorYellow, termon.Cache.GetMetrics(metric.Memory), termon.Updates)
+	termon.CPU = window.New("CPU", cell.ColorRed, metric.CPU, termon.Updates)
+	termon.GC = window.New("GC", cell.ColorGreen, metric.GC, termon.Updates)
+	termon.Golang = window.New("Golang", cell.ColorBlue, metric.Golang, termon.Updates)
+	termon.Memory = window.New("Memory", cell.ColorYellow, metric.Memory, termon.Updates)
 	//
-	go termon.Cache.GetUpdates()
+	termon.Layout = termon.DefaultLayout
 	termon.Update()
 	return termon
 }
 
 func (t *Termon) Opts() []container.Option {
-	return t.LayoutSet[t.Layout]()
+	return t.Layout()
 }
 
 func (t *Termon) Run() {
@@ -72,5 +60,5 @@ func (t *Termon) Run() {
 		}
 	}
 	go t.GetUpdates()
-	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(t.Tick))
+	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(tick))
 }

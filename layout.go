@@ -6,14 +6,7 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 )
 
-type TermonLayout int
-
 type LayoutFunc func() []container.Option
-
-const (
-	TERMON_DEFAULT TermonLayout = iota
-	TERMON_SETTINGS
-)
 
 func (t *Termon) DefaultLayout() []container.Option {
 	return []container.Option{
@@ -38,7 +31,7 @@ func (t *Termon) MakeMain() *container.Container {
 		t.Terminal,
 		container.ID("MAIN"),
 		container.Border(linestyle.Round),
-		container.BorderTitle("TERMON"),
+		container.BorderTitle(" TERMON "),
 		container.BorderTitleAlignCenter(),
 
 		container.BorderColor(cell.ColorWhite),

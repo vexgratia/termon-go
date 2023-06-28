@@ -2,6 +2,7 @@ package window
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/text"
@@ -11,7 +12,7 @@ import (
 
 func (w *Window) MetricFormat(m *metric.Metric) []format.TextWithOpts {
 	metric := format.TextWithOpts{
-		Text: m.Tag() + ":\n",
+		Text: " " + m.Tag() + ": ",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	value := format.TextWithOpts{
@@ -22,7 +23,7 @@ func (w *Window) MetricFormat(m *metric.Metric) []format.TextWithOpts {
 }
 func (w *Window) CapFormat(c uint32) []format.TextWithOpts {
 	init := format.TextWithOpts{
-		Text: "\nDisplay capacity:\n",
+		Text: " Display capacity: ",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	cap := format.TextWithOpts{
@@ -30,8 +31,23 @@ func (w *Window) CapFormat(c uint32) []format.TextWithOpts {
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(w.Color))},
 	}
 	ticks := format.TextWithOpts{
-		Text: "ticks",
+		Text: "tick",
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	return []format.TextWithOpts{init, cap, ticks}
+}
+func (w *Window) TickFormat(t time.Duration) []format.TextWithOpts {
+	init := format.TextWithOpts{
+		Text: " Tick: ",
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
+	}
+	tick := format.TextWithOpts{
+		Text: fmt.Sprintf("%d ", t),
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(w.Color))},
+	}
+	ms := format.TextWithOpts{
+		Text: "mS",
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
+	}
+	return []format.TextWithOpts{init, tick, ms}
 }

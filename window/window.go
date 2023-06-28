@@ -1,17 +1,23 @@
 package window
 
 import (
+	"time"
+
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/linechart"
+	"github.com/vexgratia/termon-go/cache"
 	"github.com/vexgratia/termon-go/metric"
 	"github.com/vexgratia/termon-go/scroller"
 	"github.com/vexgratia/termon-go/update"
 )
 
 var capacities = []uint32{
-	500, 200, 100, 10000, 5000, 2000, 1000,
+	2000, 5000, 10000, 10, 20, 50, 100, 200, 500, 1000,
+}
+var ticks = []time.Duration{
+	200, 500, 1000, 2000, 5, 10, 20, 50, 100,
 }
 
 type Window struct {
@@ -19,42 +25,46 @@ type Window struct {
 	Color   cell.Color
 	Metrics []*metric.Metric
 	//
-	Layout    WindowLayout
-	LayoutSet map[WindowLayout]LayoutFunc
+	Layout LayoutFunc
 	//
 	Settings       *button.Button
-	Return         *button.Button
 	MetricScroller *scroller.Scroller[*metric.Metric]
 	CapScroller    *scroller.Scroller[uint32]
-	Chart          *linechart.LineChart
-	Cells          []*Cell
+	TickScroller   *scroller.Scroller[time.Duration]
 	//
+	Chart       *linechart.LineChart
+	Cells       []*Cell
+	ChartButton *button.Button
+	CellButton  *button.Button
+	//
+	Cache   *cache.Cache
 	Updates chan update.Message
 }
 
-func New(name string, color cell.Color, metrics []*metric.Metric, updates chan update.Message) *Window {
+func New(name string, color cell.Color, metrics []string, updates chan update.Message) *Window {
 	window := &Window{
 		Name:    name,
 		Color:   color,
-		Metrics: metrics,
-
-		Layout:  WINDOW_DEFAULT,
 		Updates: updates,
 	}
-	window.LayoutSet = map[WindowLayout]LayoutFunc{
-		WINDOW_DEFAULT:  window.DefaultLayout,
-		WINDOW_SETTINGS: window.SettingsLayout,
-		WINDOW_CELL:     window.CellLayout,
-	}
+	window.Settings = window.MakeSettingsButton()
+	window.ChartButton = window.MakeChartButton()
+	window.CellButton = window.MakeCellButton()
+	//
+	window.TickScroller = scroller.New(ticks, window.Color, window.TickFormat)
+	window.Cache = cache.New(metrics, window.TickScroller.Current())
+	window.Metrics = window.Cache.GetMetrics()
+	//
 	window.MetricScroller = scroller.New(window.Metrics, window.Color, window.MetricFormat)
 	window.CapScroller = scroller.New(capacities, window.Color, window.CapFormat)
-	window.Cells = window.MakeCells()
-	window.Settings = window.MakeSettingsButton()
-	window.Return = window.MakeReturnButton()
 	window.Chart = window.MakeChart()
+	window.Cells = window.MakeCells()
+	//
+	go window.Cache.GetUpdates()
+	window.Layout = window.ChartLayout
 	window.Update()
 	return window
 }
 func (w *Window) Opts() []container.Option {
-	return w.LayoutSet[w.Layout]()
+	return w.Layout()
 }
