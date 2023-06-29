@@ -1,15 +1,9 @@
 package metric
 
-type Parsed struct {
+var ParseTable = map[string]struct {
 	Tag  string
 	Type MetricType
-}
-
-func (m *Metric) Parse() Parsed {
-	return ParseTable[m.Name]
-}
-
-var ParseTable = map[string]Parsed{
+}{
 	"/cgo/go-to-c-calls:calls":                     {"Calls to C", CALLS},
 	"/cpu/classes/gc/mark/assist:cpu-seconds":      {"GC assist", SECONDS},
 	"/cpu/classes/gc/mark/dedicated:cpu-seconds":   {"GC dedicated", SECONDS},

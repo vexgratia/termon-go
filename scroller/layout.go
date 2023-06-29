@@ -6,7 +6,7 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 )
 
-func (s *Scroller[T]) Layout() []container.Option {
+func (s *Scroller[T]) Opts() []container.Option {
 	builder := grid.New()
 	builder.Add(
 		grid.ColWidthPerc(20,

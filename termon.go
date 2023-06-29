@@ -5,51 +5,42 @@ import (
 	"time"
 
 	"github.com/mum4k/termdash"
-	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/keyboard"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	"github.com/vexgratia/termon-go/metric"
 	"github.com/vexgratia/termon-go/update"
-	"github.com/vexgratia/termon-go/window"
 )
 
 var tick = 5 * time.Millisecond
 
 type Termon struct {
-	Terminal *tcell.Terminal
-	Main     *container.Container
-	Layout   LayoutFunc
-	//
-	CPU    *window.Window
-	GC     *window.Window
-	Golang *window.Window
-	Memory *window.Window
-	//
-	Updates chan update.Message
+	Terminal  *tcell.Terminal
+	Main      *container.Container
+	Layout    LayoutFunc
+	Windows   []Window
+	WindowMap map[string]Window
+	Signal    chan update.Message
 }
 
 func New(terminal *tcell.Terminal) *Termon {
 	termon := &Termon{
-		Terminal: terminal,
-		Updates:  make(chan update.Message, 100),
+		Terminal:  terminal,
+		WindowMap: make(map[string]Window),
+		Signal:    make(chan update.Message, 100),
 	}
-	//
 	termon.Main = termon.MakeMain()
-	//
-	termon.CPU = window.New("CPU", cell.ColorRed, metric.CPU, termon.Updates)
-	termon.GC = window.New("GC", cell.ColorGreen, metric.GC, termon.Updates)
-	termon.Golang = window.New("Golang", cell.ColorBlue, metric.Golang, termon.Updates)
-	termon.Memory = window.New("Memory", cell.ColorYellow, metric.Memory, termon.Updates)
-	//
-	termon.Layout = termon.DefaultLayout
-	termon.Update()
 	return termon
 }
+func (t *Termon) Name() string {
+	return "MAIN"
+}
 
-func (t *Termon) Opts() []container.Option {
-	return t.Layout()
+func (t *Termon) Add(windows ...Window) {
+	for _, w := range windows {
+		t.Windows = append(t.Windows, w)
+		t.WindowMap[w.Name()] = w
+	}
 }
 
 func (t *Termon) Run() {
@@ -59,6 +50,8 @@ func (t *Termon) Run() {
 			cancel()
 		}
 	}
+	t.MakeWindows()
+	t.SetLayout(t.LayoutFour)
 	go t.GetUpdates()
 	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(tick))
 }

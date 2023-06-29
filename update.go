@@ -1,21 +1,24 @@
 package termon
 
-import "github.com/vexgratia/termon-go/update"
-
-func (t *Termon) Update() {
-	t.Updates <- update.Message{
-		Name: "MAIN",
-		Opts: t.Opts(),
-	}
+func (t *Termon) Relayout() {
+	t.Main.Update("MAIN", t.Opts()...)
 }
-
+func (t *Termon) SetLayout(layout LayoutFunc) {
+	t.Layout = layout
+	t.Relayout()
+}
+func (t *Termon) SetWindow(name string, index int) {
+	t.Windows[index] = t.WindowMap[name]
+}
 func (t *Termon) GetUpdates() {
+	for _, w := range t.Windows {
+		go w.GetUpdates()
+	}
 	for {
 		select {
-		case msg := <-t.Updates:
+		case msg := <-t.Signal:
 			t.Main.Update(msg.Name, msg.Opts...)
 		default:
-			continue
 		}
 	}
 }

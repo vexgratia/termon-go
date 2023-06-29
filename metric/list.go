@@ -1,5 +1,25 @@
 package metric
 
+import "github.com/mum4k/termdash/cell"
+
+func Get(names []string) []*Metric {
+	metrics := []*Metric{}
+	for _, name := range names {
+		metrics = append(metrics, New(name))
+
+	}
+	return metrics
+}
+func GetColored(names []string, color cell.Color) []*Metric {
+	metrics := []*Metric{}
+	for _, name := range names {
+		m := New(name)
+		m.SetColor(color)
+		metrics = append(metrics, m)
+	}
+	return metrics
+}
+
 var All = []string{
 	"/cgo/go-to-c-calls:calls",
 	"/cpu/classes/gc/mark/assist:cpu-seconds",

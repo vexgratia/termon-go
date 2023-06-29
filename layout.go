@@ -8,19 +8,48 @@ import (
 
 type LayoutFunc func() []container.Option
 
-func (t *Termon) DefaultLayout() []container.Option {
+func (t *Termon) Opts() []container.Option {
+	return t.Layout()
+}
+
+func (t *Termon) LayoutOne() []container.Option {
+	return []container.Option{
+		container.SplitHorizontal(
+			container.Top(t.Windows[0].Opts()...),
+			container.Bottom(),
+			container.SplitPercent(90),
+		),
+	}
+}
+func (t *Termon) LayoutTwoHorizontal() []container.Option {
+	return []container.Option{
+		container.SplitHorizontal(
+			container.Top(t.Windows[0].Opts()...),
+			container.Bottom(t.Windows[1].Opts()...),
+		),
+	}
+}
+func (t *Termon) LayoutTwoVertical() []container.Option {
+	return []container.Option{
+		container.SplitVertical(
+			container.Left(t.Windows[0].Opts()...),
+			container.Right(t.Windows[1].Opts()...),
+		),
+	}
+}
+func (t *Termon) LayoutFour() []container.Option {
 	return []container.Option{
 		container.SplitHorizontal(
 			container.Top(
 				container.SplitVertical(
-					container.Left(t.CPU.Opts()...),
-					container.Right(t.GC.Opts()...),
+					container.Left(t.Windows[0].Opts()...),
+					container.Right(t.Windows[1].Opts()...),
 				),
 			),
 			container.Bottom(
 				container.SplitVertical(
-					container.Left(t.Golang.Opts()...),
-					container.Right(t.Memory.Opts()...),
+					container.Left(t.Windows[2].Opts()...),
+					container.Right(t.Windows[3].Opts()...),
 				),
 			),
 		),

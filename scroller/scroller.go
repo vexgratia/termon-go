@@ -5,37 +5,41 @@ import (
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/text"
 	dcl "github.com/vexgratia/collection-go/generic/list/dcl"
-	format "github.com/vexgratia/termon-go/format"
+	"github.com/vexgratia/termon-go/format"
 )
 
 type Scroller[T any] struct {
-	Name      string
-	Color     cell.Color
-	List      *dcl.List[T]
-	Prev      *button.Button
-	Display   *text.Text
-	Next      *button.Button
+	//
+	name  string
+	Color cell.Color
+	//
+	List *dcl.List[T]
+	//
+	Prev    *button.Button
+	Display *text.Text
+	Next    *button.Button
+	//
 	Formatter func(data T) []format.TextWithOpts
-	Scroll    func()
+	OnScroll  func()
 }
 
-func New[T any](data []T, color cell.Color, formatter func(data T) []format.TextWithOpts, scroll func()) *Scroller[T] {
+func New[T any]() *Scroller[T] {
 	scroller := &Scroller[T]{
-		Color:     color,
-		Formatter: formatter,
-		Scroll:    scroll,
+		List:      dcl.New[T](),
+		Formatter: format.Default[T],
+		OnScroll:  func() {},
 	}
-	list := dcl.New[T]()
-	for _, data := range data {
-		list.Push(data)
-	}
-	scroller.List = list
-	scroller.Prev, scroller.Next = scroller.MakeScrollButtons()
-	scroller.Display = scroller.MakeDisplay()
-	scroller.Update()
+	scroller.SetColor(cell.ColorWhite)
 	return scroller
 }
-
+func (s *Scroller[T]) Name() string {
+	return s.name
+}
+func (s *Scroller[T]) Add(data ...T) {
+	for _, item := range data {
+		s.List.Push(item)
+	}
+}
 func (s *Scroller[T]) Current() T {
 	return s.List.Peek()
 }
@@ -44,4 +48,14 @@ func (s *Scroller[T]) ScrollNext() {
 }
 func (s *Scroller[T]) ScrollPrev() {
 	s.List.ScrollPrev()
+}
+func (s *Scroller[T]) SetScrollFunc(scroll func()) {
+	s.OnScroll = scroll
+}
+func (s *Scroller[T]) SetFormatter(formatter func(data T) []format.TextWithOpts) {
+	s.Formatter = formatter
+}
+func (s *Scroller[T]) SetColor(color cell.Color) {
+	s.Color = color
+	s.ResetWidgets()
 }
