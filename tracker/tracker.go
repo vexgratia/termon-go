@@ -15,6 +15,8 @@ type Tracker struct {
 	Metrics        []*metric.Metric
 	MetricScroller *scroller.Scroller[*metric.Metric]
 	Settings       *button.Button
+	Chart          *button.Button
+	Cell           *button.Button
 	Signal         chan update.Message
 }
 
@@ -23,6 +25,7 @@ func New(name string) *Tracker {
 		name:           name,
 		MetricScroller: scroller.New[*metric.Metric](),
 	}
+	tracker.Layout = tracker.ChartLayout
 	tracker.MetricScroller.SetScrollFunc(tracker.Relayout)
 	tracker.SetColor(cell.ColorWhite)
 	return tracker

@@ -13,6 +13,17 @@ func (m *Metric) Update() {
 	m.UpdateWidgets()
 }
 func (m *Metric) UpdateWidgets() {
+	m.UpdateChart()
+	m.UpdateDisplay()
+}
+func (m *Metric) UpdateDisplay() {
+	m.Display.Reset()
+	textChunk := m.DisplayFormat()
+	for _, unit := range textChunk {
+		m.Display.Write(unit.Text, unit.Opts...)
+	}
+}
+func (m *Metric) UpdateChart() {
 	m.Chart.Series(
 		"data", m.Data.Collect(),
 		linechart.SeriesCellOpts(cell.FgColor(m.Color)))
@@ -33,6 +44,7 @@ func (m *Metric) UpdateData() {
 	default:
 
 	}
+	m.Current = data
 	m.Data.Enqueue(data)
 }
 func medianBucket(h *metrics.Float64Histogram) float64 {

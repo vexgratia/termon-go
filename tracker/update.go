@@ -18,6 +18,7 @@ func (t *Tracker) Relayout() {
 
 func (t *Tracker) SetLayout(layout LayoutFunc) {
 	t.Layout = layout
+	t.Relayout()
 }
 func (t *Tracker) GetUpdates() {
 	for {

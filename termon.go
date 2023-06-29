@@ -50,8 +50,21 @@ func (t *Termon) Run() {
 			cancel()
 		}
 	}
+	switcher := func(k *terminalapi.Keyboard) {
+		switch k.Key {
+		case '1':
+			t.SetLayout(t.LayoutOne)
+		case '2':
+			t.SetLayout(t.LayoutTwoHorizontal)
+		case '3':
+			t.SetLayout(t.LayoutTwoVertical)
+		case '4':
+			t.SetLayout(t.LayoutFour)
+		default:
+		}
+	}
 	t.MakeWindows()
 	t.SetLayout(t.LayoutFour)
 	go t.GetUpdates()
-	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(tick))
+	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
 }

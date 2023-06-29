@@ -2,6 +2,7 @@ package tracker
 
 import (
 	"github.com/mum4k/termdash/container"
+	"github.com/mum4k/termdash/container/grid"
 	"github.com/mum4k/termdash/linestyle"
 )
 
@@ -11,14 +12,9 @@ func (t *Tracker) Opts() []container.Option {
 	return t.Layout()
 }
 func (t *Tracker) ChartLayout() []container.Option {
-	return []container.Option{
-		container.ID(t.name),
-		container.Border(linestyle.Round),
-		container.BorderTitle(" " + t.Name() + " "),
-		container.BorderTitleAlignCenter(),
-
-		container.BorderColor(t.Color),
-		container.FocusedColor(t.Color),
+	layout := []container.Option{}
+	layout = append(layout, t.MainOpts()...)
+	opts := []container.Option{
 		container.SplitHorizontal(
 			container.Top(
 				container.SplitVertical(
@@ -35,4 +31,77 @@ func (t *Tracker) ChartLayout() []container.Option {
 			container.SplitPercent(30),
 		),
 	}
+	layout = append(layout, opts...)
+	return layout
+}
+func (t *Tracker) CellLayout() []container.Option {
+	layout := []container.Option{}
+	layout = append(layout, t.MainOpts()...)
+	builder := grid.New()
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPerc(25, grid.Widget(t.Settings)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(0)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(1)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(2)),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(3)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(4)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(5)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(6)),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(7)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(8)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(9)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(10)),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(11)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(12)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(13)),
+			grid.ColWidthPercWithOpts(25, t.GetMetricCell(14)),
+		),
+	)
+	opts, _ := builder.Build()
+	layout = append(layout, opts...)
+	return layout
+}
+func (t *Tracker) SettingsLayout() []container.Option {
+	layout := []container.Option{}
+	layout = append(layout, t.MainOpts()...)
+	builder := grid.New()
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.ColWidthPerc(50, grid.Widget(t.Chart)),
+			grid.ColWidthPerc(50, grid.Widget(t.Cell)),
+		),
+	)
+	opts, _ := builder.Build()
+	layout = append(layout, opts...)
+	return layout
+}
+func (t *Tracker) MainOpts() []container.Option {
+	return []container.Option{
+		container.ID(t.name),
+		container.Border(linestyle.Round),
+		container.BorderTitle(" " + t.Name() + " "),
+		container.BorderTitleAlignCenter(),
+
+		container.BorderColor(t.Color),
+		container.FocusedColor(t.Color),
+	}
+}
+func (t *Tracker) GetMetricCell(index int) []container.Option {
+	if index >= len(t.Metrics) {
+		return []container.Option{}
+	}
+	return t.Metrics[index].DisplayOpts()
 }

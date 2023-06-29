@@ -17,7 +17,8 @@ type Metric struct {
 	Tag  string
 	Type MetricType
 	//
-	Data *queue.Queue[float64]
+	Current float64
+	Data    *queue.Queue[float64]
 	//
 	Display *text.Text
 	Chart   *linechart.LineChart
@@ -32,14 +33,16 @@ func New(name string) *Metric {
 		Data:   queue.New[float64](),
 	}
 	metric.Tag, metric.Type = ParseTable[name].Tag, ParseTable[name].Type
+	metric.Format = MakeValueFormatter(metric.Type)
 	metric.UpdateData()
 	return metric
 }
 func (m *Metric) Name() string {
 	return m.name
 }
-func (m *Metric) Current() float64 {
-	return m.Data.Peek()
+
+func (m *Metric) CurrentF() string {
+	return m.Format(m.Current)
 }
 func (m *Metric) SetColor(color cell.Color) {
 	m.Color = color
