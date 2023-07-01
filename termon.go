@@ -2,69 +2,62 @@ package termon
 
 import (
 	"context"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/mum4k/termdash"
 	"github.com/mum4k/termdash/container"
-	"github.com/mum4k/termdash/keyboard"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	"github.com/vexgratia/termon-go/update"
+	"github.com/vexgratia/termon-go/updater"
+	"github.com/vexgratia/termon-go/window"
 )
 
-var tick = 5 * time.Millisecond
+var tick = 50 * time.Millisecond
 
 type Termon struct {
-	Terminal  *tcell.Terminal
-	Main      *container.Container
-	Layout    LayoutFunc
-	Windows   []Window
-	WindowMap map[string]Window
-	Signal    chan update.Message
+	Terminal *tcell.Terminal
+	mu       *sync.Mutex
+	Main     *container.Container
+	Layout   LayoutFunc
+	Windows  map[string]window.Window
+	Pool     map[string]window.Window
+	Counter  atomic.Uint32
+	Updater  *updater.Updater
 }
 
 func New(terminal *tcell.Terminal) *Termon {
 	termon := &Termon{
-		Terminal:  terminal,
-		WindowMap: make(map[string]Window),
-		Signal:    make(chan update.Message, 100),
+		Terminal: terminal,
+		mu:       &sync.Mutex{},
+		Pool:     make(map[string]window.Window),
+		Windows:  make(map[string]window.Window),
 	}
 	termon.Main = termon.MakeMain()
+	termon.Updater = updater.New(termon.Main)
 	return termon
 }
-func (t *Termon) Name() string {
-	return "MAIN"
-}
 
-func (t *Termon) Add(windows ...Window) {
+func (t *Termon) Add(windows ...window.Window) {
 	for _, w := range windows {
-		t.Windows = append(t.Windows, w)
-		t.WindowMap[w.Name()] = w
+		t.Windows[w.Name()] = w
+		// t.Pool[w.Name()] = w
+		go w.Run()
 	}
 }
 
 func (t *Termon) Run() {
-	ctx, cancel := context.WithCancel(context.Background())
-	quitter := func(k *terminalapi.Keyboard) {
-		if k.Key == 'q' || k.Key == 'Q' || k.Key == keyboard.KeyEsc {
-			cancel()
-		}
-	}
+	ctx := context.Background()
+	t.MakeWindows()
 	switcher := func(k *terminalapi.Keyboard) {
 		switch k.Key {
 		case '1':
-			t.SetLayout(t.LayoutOne)
+			t.SetLayout(t.FocusLayout)
 		case '2':
-			t.SetLayout(t.LayoutTwoHorizontal)
-		case '3':
-			t.SetLayout(t.LayoutTwoVertical)
-		case '4':
-			t.SetLayout(t.LayoutFour)
+			t.SetLayout(t.SplitLayout)
 		default:
 		}
 	}
-	t.MakeWindows()
-	t.SetLayout(t.LayoutFour)
-	go t.GetUpdates()
-	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(quitter), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
+	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(switcher), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
 }

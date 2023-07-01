@@ -8,9 +8,6 @@ import (
 
 type LayoutFunc func() []container.Option
 
-func (t *Tracker) Opts() []container.Option {
-	return t.Layout()
-}
 func (t *Tracker) ChartLayout() []container.Option {
 	layout := []container.Option{}
 	layout = append(layout, t.MainOpts()...)
@@ -95,8 +92,8 @@ func (t *Tracker) MainOpts() []container.Option {
 		container.BorderTitle(" " + t.Name() + " "),
 		container.BorderTitleAlignCenter(),
 
-		container.BorderColor(t.Color),
-		container.FocusedColor(t.Color),
+		container.BorderColor(t.Color()),
+		container.FocusedColor(t.Color()),
 	}
 }
 func (t *Tracker) GetMetricCell(index int) []container.Option {

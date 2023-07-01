@@ -1,6 +1,8 @@
 package tracker
 
-import "github.com/mum4k/termdash/widgets/button"
+import (
+	"github.com/mum4k/termdash/widgets/button"
+)
 
 func (t *Tracker) ResetWidgets() {
 	t.Settings = t.MakeSettingsButton()
@@ -17,7 +19,7 @@ func (t *Tracker) MakeSettingsButton() *button.Button {
 		},
 		button.Height(2),
 		button.Width(8),
-		button.FillColor(t.Color),
+		button.FillColor(t.Color()),
 	)
 	return button
 }
@@ -30,7 +32,7 @@ func (t *Tracker) MakeChartButton() *button.Button {
 		},
 		button.Height(2),
 		button.Width(8),
-		button.FillColor(t.Color),
+		button.FillColor(t.Color()),
 	)
 	return button
 }
@@ -43,7 +45,7 @@ func (t *Tracker) MakeCellButton() *button.Button {
 		},
 		button.Height(2),
 		button.Width(8),
-		button.FillColor(t.Color),
+		button.FillColor(t.Color()),
 	)
 	return button
 }

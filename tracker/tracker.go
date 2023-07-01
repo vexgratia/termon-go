@@ -1,38 +1,41 @@
 package tracker
 
 import (
+	"sync"
+
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/vexgratia/termon-go/metric"
 	"github.com/vexgratia/termon-go/scroller"
-	"github.com/vexgratia/termon-go/update"
+	"github.com/vexgratia/termon-go/updater"
 )
 
 type Tracker struct {
 	name           string
-	Color          cell.Color
+	color          cell.Color
+	mu             *sync.Mutex
 	Layout         LayoutFunc
 	Metrics        []*metric.Metric
 	MetricScroller *scroller.Scroller[*metric.Metric]
 	Settings       *button.Button
 	Chart          *button.Button
 	Cell           *button.Button
-	Signal         chan update.Message
+	Updater        *updater.Updater
 }
 
-func New(name string) *Tracker {
+func New(name string, updater *updater.Updater) *Tracker {
 	tracker := &Tracker{
 		name:           name,
+		mu:             &sync.Mutex{},
 		MetricScroller: scroller.New[*metric.Metric](),
+		Updater:        updater,
 	}
 	tracker.Layout = tracker.ChartLayout
 	tracker.MetricScroller.SetScrollFunc(tracker.Relayout)
 	tracker.SetColor(cell.ColorWhite)
 	return tracker
 }
-func (t *Tracker) Name() string {
-	return t.name
-}
+
 func (t *Tracker) Add(metrics ...*metric.Metric) {
 	for _, metric := range metrics {
 		t.MetricScroller.Add(metric)
@@ -41,7 +44,7 @@ func (t *Tracker) Add(metrics ...*metric.Metric) {
 }
 
 func (t *Tracker) SetColor(color cell.Color) {
-	t.Color = color
+	t.color = color
 	t.MetricScroller.SetColor(color)
 	t.ResetWidgets()
 }
