@@ -21,9 +21,7 @@ func New(main *container.Container) *Updater {
 	}
 }
 func (u *Updater) Request(w window.Window) {
-	w.Lock()
 	u.Main.Update(w.Name(), w.Opts()...)
-	w.Unlock()
 }
 
 func (u *Updater) SetWindow(id string, opts []container.Option) {

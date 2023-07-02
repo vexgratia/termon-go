@@ -19,7 +19,7 @@ func (t *Tracker) ChartLayout() []container.Option {
 						container.PlaceWidget(t.Settings),
 					),
 					container.Right(t.MetricScroller.Opts()...),
-					container.SplitPercent(20),
+					container.SplitPercent(25),
 				),
 			),
 			container.Bottom(

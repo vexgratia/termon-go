@@ -1,8 +1,6 @@
 package tracker
 
 import (
-	"sync"
-
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/vexgratia/termon-go/metric"
@@ -13,7 +11,6 @@ import (
 type Tracker struct {
 	name           string
 	color          cell.Color
-	mu             *sync.Mutex
 	Layout         LayoutFunc
 	Metrics        []*metric.Metric
 	MetricScroller *scroller.Scroller[*metric.Metric]
@@ -26,12 +23,12 @@ type Tracker struct {
 func New(name string, updater *updater.Updater) *Tracker {
 	tracker := &Tracker{
 		name:           name,
-		mu:             &sync.Mutex{},
 		MetricScroller: scroller.New[*metric.Metric](),
 		Updater:        updater,
 	}
 	tracker.Layout = tracker.ChartLayout
 	tracker.MetricScroller.SetScrollFunc(tracker.Relayout)
+	tracker.MetricScroller.SetFormatter(MetricFormatter)
 	tracker.SetColor(cell.ColorWhite)
 	return tracker
 }

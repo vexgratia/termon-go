@@ -15,12 +15,7 @@ func (t *Termon) Name() string {
 func (t *Termon) Color() cell.Color {
 	return cell.ColorWhite
 }
-func (t *Termon) Lock() {
-	t.mu.Lock()
-}
-func (t *Termon) Unlock() {
-	t.mu.Unlock()
-}
+
 func (t *Termon) Opts() []container.Option {
 	return t.Layout()
 }

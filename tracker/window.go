@@ -13,12 +13,7 @@ func (t *Tracker) Name() string {
 func (t *Tracker) Color() cell.Color {
 	return t.color
 }
-func (t *Tracker) Lock() {
-	t.mu.Lock()
-}
-func (t *Tracker) Unlock() {
-	t.mu.Unlock()
-}
+
 func (t *Tracker) Opts() []container.Option {
 	return t.Layout()
 }

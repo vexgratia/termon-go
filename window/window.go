@@ -8,8 +8,6 @@ import (
 type Window interface {
 	Name() string
 	Color() cell.Color
-	Lock()
-	Unlock()
 	Opts() []container.Option
 	Run()
 }

@@ -38,7 +38,7 @@ func (s *Scroller[T]) MakeScrollButtons() (*button.Button, *button.Button) {
 
 func (s *Scroller[T]) MakeDisplay() *text.Text {
 	display, _ := text.New(
-		text.WrapAtRunes(),
+		text.WrapAtWords(),
 		text.DisableScrolling(),
 	)
 	return display
