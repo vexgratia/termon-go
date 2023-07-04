@@ -3,6 +3,7 @@ package termon
 import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
+	"github.com/vexgratia/termon-go/logger"
 	"github.com/vexgratia/termon-go/metric"
 	"github.com/vexgratia/termon-go/tracker"
 )
@@ -36,5 +37,17 @@ func (t *Termon) MakeWindows() {
 	memory := tracker.New("Memory", t.Updater)
 	memory.Add(metric.GetColored(metric.Memory, cell.ColorYellow)...)
 	memory.SetColor(cell.ColorYellow)
-	t.Add(cpu, gc, golang, memory)
+	//
+	infoLog := logger.New("Info", t.Updater)
+	infoLog.SetColor(cell.ColorBlue)
+	t.Logger["Info"] = infoLog
+	//
+	warnLog := logger.New("Warn", t.Updater)
+	warnLog.SetColor(cell.ColorYellow)
+	t.Logger["Warn"] = warnLog
+	//
+	errLog := logger.New("Error", t.Updater)
+	errLog.SetColor(cell.ColorRed)
+	t.Logger["Error"] = errLog
+	t.Add(golang, memory, cpu, gc, infoLog, warnLog, errLog)
 }

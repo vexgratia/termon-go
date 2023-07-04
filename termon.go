@@ -12,6 +12,7 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
+	"github.com/vexgratia/termon-go/logger"
 	"github.com/vexgratia/termon-go/selecter"
 	"github.com/vexgratia/termon-go/updater"
 	"github.com/vexgratia/termon-go/window"
@@ -21,18 +22,20 @@ var tick = 50 * time.Millisecond
 var maxWindows = 8
 
 type Termon struct {
-	Terminal  *tcell.Terminal
-	mu        *sync.Mutex
-	Main      *container.Container
-	Selecters []*selecter.Selecter
-	Layout    LayoutFunc
-	Updater   *updater.Updater
+	Terminal *tcell.Terminal
+	mu       *sync.Mutex
+	Main     *container.Container
+	Logger   map[string]*logger.Logger
+	Selecter []*selecter.Selecter
+	Layout   LayoutFunc
+	Updater  *updater.Updater
 }
 
 func New(terminal *tcell.Terminal) *Termon {
 	termon := &Termon{
 		Terminal: terminal,
 		mu:       &sync.Mutex{},
+		Logger:   make(map[string]*logger.Logger),
 	}
 	main, _ := container.New(
 		termon.Terminal,
@@ -52,7 +55,7 @@ func New(terminal *tcell.Terminal) *Termon {
 	termon.Main = main
 	termon.Updater = updater.New(termon.Main)
 	for id := 0; id < maxWindows; id++ {
-		termon.Selecters = append(termon.Selecters, selecter.New(id, termon.Updater))
+		termon.Selecter = append(termon.Selecter, selecter.New(id, termon.Updater))
 	}
 	termon.MakeWindows()
 	return termon
@@ -60,24 +63,16 @@ func New(terminal *tcell.Terminal) *Termon {
 
 func (t *Termon) Add(windows ...window.Window) {
 	for _, w := range windows {
-		for _, s := range t.Selecters {
+		for _, s := range t.Selecter {
 			s.Add(w)
 			s.Update()
 		}
 		go w.Run()
 	}
 }
-func (t *Termon) Run() {
 
-}
-func Run(ctx context.Context) {
-	terminal, err := tcell.New()
-	if err != nil {
-		panic(err)
-	}
-	defer terminal.Close()
-	t := New(terminal)
-	ctx, cancel := context.WithCancel(ctx)
+func (t *Termon) Run() {
+	ctx, cancel := context.WithCancel(context.Background())
 	switcher := func(k *terminalapi.Keyboard) {
 		switch k.Key {
 		case '1':
@@ -94,5 +89,5 @@ func Run(ctx context.Context) {
 		}
 	}
 	fmt.Println("AWDAWDAWD")
-	termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(switcher), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
+	go termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(switcher), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
 }

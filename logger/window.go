@@ -1,23 +1,25 @@
 package logger
 
 import (
+	"time"
+
 	"github.com/mum4k/termdash/cell"
-	"github.com/mum4k/termdash/widgets/linechart"
-	"github.com/mum4k/termdash/widgets/text"
+	"github.com/mum4k/termdash/container"
 )
 
-type Window struct {
-	Color   cell.Color
-	Display *text.Text
-	Chart   *linechart.LineChart
+func (l *Logger) Name() string {
+	return l.name
 }
-
-func MakeWindow() *Window {
-	window := &Window{}
-	window.SetColor(cell.ColorWhite)
-	return window
+func (l *Logger) Color() cell.Color {
+	return l.color
 }
-func (w *Window) SetColor(color cell.Color) {
-	w.Color = color
-	w.ResetWidgets()
+func (l *Logger) Opts() []container.Option {
+	return l.Layout()
+}
+func (l *Logger) Run() {
+	l.Add("Start logging...")
+	for {
+		l.Update()
+		time.Sleep(time.Millisecond * 50)
+	}
 }
