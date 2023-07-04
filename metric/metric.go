@@ -1,6 +1,7 @@
 package metric
 
 import (
+	"math"
 	"runtime/metrics"
 
 	"github.com/mum4k/termdash/cell"
@@ -34,7 +35,10 @@ func New(name string) *Metric {
 	}
 	metric.Tag, metric.Type = ParseTable[name].Tag, ParseTable[name].Type
 	metric.Format = MakeValueFormatter(metric.Type)
-	metric.UpdateData()
+	for i := 0; i < maxCap; i++ {
+		metric.Data.Enqueue(math.NaN())
+	}
+	metric.SetColor(cell.ColorWhite)
 	return metric
 }
 func (m *Metric) Name() string {

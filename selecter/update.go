@@ -1,5 +1,10 @@
 package selecter
 
 func (s *Selecter) Update() {
-	s.Updater.Request(s)
+	if !s.mu.TryLock() {
+		return
+	}
+	s.Buttons = s.MakeButtons()
+	s.mu.Unlock()
+	// s.Updater.Request(s)
 }

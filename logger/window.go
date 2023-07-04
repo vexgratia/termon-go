@@ -20,6 +20,6 @@ func (l *Logger) Run() {
 	l.Add("Start logging...")
 	for {
 		l.Update()
-		time.Sleep(time.Millisecond * 50)
+		time.Sleep(time.Millisecond * 10)
 	}
 }

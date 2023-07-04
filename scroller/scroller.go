@@ -19,7 +19,7 @@ type Scroller[T any] struct {
 	Display *text.Text
 	Next    *button.Button
 	//
-	Formatter func(data T) []format.TextWithOpts
+	Formatter func(data T) []format.Text
 	OnScroll  func()
 }
 
@@ -52,7 +52,7 @@ func (s *Scroller[T]) ScrollPrev() {
 func (s *Scroller[T]) SetScrollFunc(scroll func()) {
 	s.OnScroll = scroll
 }
-func (s *Scroller[T]) SetFormatter(formatter func(data T) []format.TextWithOpts) {
+func (s *Scroller[T]) SetFormatter(formatter func(data T) []format.Text) {
 	s.Formatter = formatter
 }
 func (s *Scroller[T]) SetColor(color cell.Color) {

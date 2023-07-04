@@ -7,13 +7,13 @@ import (
 	"github.com/mum4k/termdash/widgets/text"
 )
 
-type TextWithOpts struct {
+type Text struct {
 	Text string
 	Opts []text.WriteOption
 }
 
-func Default[T any](data T) []TextWithOpts {
-	return []TextWithOpts{
+func Default[T any](data T) []Text {
+	return []Text{
 		{
 			Text: fmt.Sprintf("%v", data),
 			Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},

@@ -19,6 +19,7 @@ func (t *Tracker) Opts() []container.Option {
 }
 func (t *Tracker) Run() {
 	for {
+		t.ColorScroller.Update()
 		t.MetricScroller.Update()
 		for _, metric := range t.Metrics {
 			metric.Update()

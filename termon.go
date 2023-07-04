@@ -85,9 +85,16 @@ func (t *Termon) Run() {
 			t.SetLayout(t.QuadroLayout)
 		case 'q':
 			cancel()
+			t.Terminal.Close()
 		default:
 		}
 	}
 	fmt.Println("AWDAWDAWD")
-	go termdash.Run(ctx, t.Terminal, t.Main, termdash.KeyboardSubscriber(switcher), termdash.KeyboardSubscriber(switcher), termdash.RedrawInterval(tick))
+	go termdash.Run(
+		ctx,
+		t.Terminal,
+		t.Main,
+		termdash.KeyboardSubscriber(switcher),
+		termdash.RedrawInterval(tick),
+	)
 }

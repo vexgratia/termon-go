@@ -31,8 +31,8 @@ func MakeValueFormatter(t MetricType) func(value float64) string {
 		return NumFormat
 	}
 }
-func (m *Metric) DisplayFormat() []format.TextWithOpts {
-	return []format.TextWithOpts{
+func (m *Metric) DisplayFormat() []format.Text {
+	return []format.Text{
 		{
 			Text: m.CurrentF(),
 			Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},

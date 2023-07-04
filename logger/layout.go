@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"strings"
+
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/linestyle"
@@ -31,7 +33,7 @@ func (l *Logger) MainOpts() []container.Option {
 	return []container.Option{
 		container.ID(l.name),
 		container.Border(linestyle.Round),
-		container.BorderTitle(" " + l.name + " "),
+		container.BorderTitle(" " + strings.ToUpper(l.name) + " "),
 		container.BorderTitleAlignCenter(),
 
 		container.BorderColor(l.color),

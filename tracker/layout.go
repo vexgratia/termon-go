@@ -81,6 +81,9 @@ func (t *Tracker) SettingsLayout() []container.Option {
 			grid.ColWidthPerc(50, grid.Widget(t.Cell)),
 		),
 	)
+	builder.Add(
+		grid.RowHeightPercWithOpts(25, t.ColorScroller.Opts()),
+	)
 	opts, _ := builder.Build()
 	layout = append(layout, opts...)
 	return layout

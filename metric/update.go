@@ -8,6 +8,8 @@ import (
 	"github.com/mum4k/termdash/widgets/linechart"
 )
 
+var maxCap = 1000
+
 func (m *Metric) Update() {
 	m.UpdateData()
 	m.UpdateWidgets()
@@ -46,6 +48,9 @@ func (m *Metric) UpdateData() {
 	}
 	m.Current = data
 	m.Data.Enqueue(data)
+	if m.Data.Len() >= maxCap {
+		m.Data.Dequeue()
+	}
 }
 func medianBucket(h *metrics.Float64Histogram) float64 {
 	total := uint64(0)

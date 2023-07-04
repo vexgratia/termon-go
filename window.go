@@ -23,20 +23,16 @@ func (t *Termon) Opts() []container.Option {
 func (t *Termon) MakeWindows() {
 	//
 	cpu := tracker.New("CPU", t.Updater)
-	cpu.Add(metric.GetColored(metric.CPU, cell.ColorRed)...)
-	cpu.SetColor(cell.ColorRed)
+	cpu.Add(metric.Get(metric.CPU)...)
 	//
 	gc := tracker.New("GC", t.Updater)
-	gc.Add(metric.GetColored(metric.GC, cell.ColorGreen)...)
-	gc.SetColor(cell.ColorGreen)
+	gc.Add(metric.Get(metric.GC)...)
 	//
 	golang := tracker.New("Golang", t.Updater)
-	golang.Add(metric.GetColored(metric.Golang, cell.ColorBlue)...)
-	golang.SetColor(cell.ColorBlue)
+	golang.Add(metric.Get(metric.Golang)...)
 	//
 	memory := tracker.New("Memory", t.Updater)
-	memory.Add(metric.GetColored(metric.Memory, cell.ColorYellow)...)
-	memory.SetColor(cell.ColorYellow)
+	memory.Add(metric.Get(metric.Memory)...)
 	//
 	infoLog := logger.New("Info", t.Updater)
 	infoLog.SetColor(cell.ColorBlue)

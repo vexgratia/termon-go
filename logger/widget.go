@@ -20,6 +20,7 @@ func (l *Logger) MakeSpark() *sparkline.SparkLine {
 func (l *Logger) MakeDisplay() *text.Text {
 	text, _ := text.New(
 		text.WrapAtWords(),
+		text.RollContent(),
 	)
 	return text
 }

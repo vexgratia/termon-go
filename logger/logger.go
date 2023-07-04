@@ -14,6 +14,8 @@ import (
 	"github.com/vexgratia/termon-go/updater"
 )
 
+var maxCap = 200
+
 type Logger struct {
 	name     string
 	color    cell.Color
@@ -41,23 +43,26 @@ func (l *Logger) SetColor(color cell.Color) {
 }
 func (l *Logger) Add(msg string) {
 	l.Data.Enqueue(msg)
-	data := format.TextWithOpts{
+	data := format.Text{
 		Text: fmt.Sprintf("%s\n", msg),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	l.Display.Write(data.Text, data.Opts...)
+	if l.Data.Len() >= maxCap {
+		l.Data.Dequeue()
+	}
 }
 func (l *Logger) AddF(msg string) {
 	l.Data.Enqueue(msg)
-	time := format.TextWithOpts{
+	time := format.Text{
 		Text: time.Now().Format(timeFormat),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
-	name := format.TextWithOpts{
+	name := format.Text{
 		Text: fmt.Sprintf(" [%s] ", strings.ToUpper(l.name)),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(l.color))},
 	}
-	data := format.TextWithOpts{
+	data := format.Text{
 		Text: fmt.Sprintf("%s\n", msg),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
