@@ -11,7 +11,7 @@ func (t *Tracker) Name() string {
 	return t.name
 }
 func (t *Tracker) Color() cell.Color {
-	return t.color
+	return t.color.Current()
 }
 
 func (t *Tracker) Opts() []container.Option {
@@ -19,8 +19,8 @@ func (t *Tracker) Opts() []container.Option {
 }
 func (t *Tracker) Run() {
 	for {
-		t.ColorScroller.Update()
-		t.MetricScroller.Update()
+		t.color.Update()
+		t.metric.Update()
 		for _, metric := range t.Metrics {
 			metric.Update()
 		}

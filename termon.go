@@ -2,7 +2,6 @@ package termon
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
@@ -12,10 +11,10 @@ import (
 	"github.com/mum4k/termdash/linestyle"
 	"github.com/mum4k/termdash/terminal/tcell"
 	"github.com/mum4k/termdash/terminal/terminalapi"
-	"github.com/vexgratia/termon-go/logger"
-	"github.com/vexgratia/termon-go/selecter"
 	"github.com/vexgratia/termon-go/updater"
 	"github.com/vexgratia/termon-go/window"
+	"github.com/vexgratia/termon-go/window/logger"
+	"github.com/vexgratia/termon-go/window/selecter"
 )
 
 var tick = 50 * time.Millisecond
@@ -89,7 +88,6 @@ func (t *Termon) Run() {
 		default:
 		}
 	}
-	fmt.Println("AWDAWDAWD")
 	go termdash.Run(
 		ctx,
 		t.Terminal,

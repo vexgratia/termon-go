@@ -3,9 +3,9 @@ package termon
 import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
-	"github.com/vexgratia/termon-go/logger"
 	"github.com/vexgratia/termon-go/metric"
-	"github.com/vexgratia/termon-go/tracker"
+	"github.com/vexgratia/termon-go/window/logger"
+	"github.com/vexgratia/termon-go/window/tracker"
 )
 
 var gridCap = 16

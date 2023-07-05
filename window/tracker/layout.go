@@ -18,12 +18,12 @@ func (t *Tracker) ChartLayout() []container.Option {
 					container.Left(
 						container.PlaceWidget(t.Settings),
 					),
-					container.Right(t.MetricScroller.Opts()...),
+					container.Right(t.metric.Opts()...),
 					container.SplitPercent(25),
 				),
 			),
 			container.Bottom(
-				container.PlaceWidget(t.MetricScroller.Current().Chart),
+				container.PlaceWidget(t.metric.Current().Chart),
 			),
 			container.SplitPercent(30),
 		),
@@ -82,7 +82,7 @@ func (t *Tracker) SettingsLayout() []container.Option {
 		),
 	)
 	builder.Add(
-		grid.RowHeightPercWithOpts(25, t.ColorScroller.Opts()),
+		grid.RowHeightPercWithOpts(25, t.color.Opts()),
 	)
 	opts, _ := builder.Build()
 	layout = append(layout, opts...)
