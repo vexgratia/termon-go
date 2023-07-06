@@ -1,63 +1,75 @@
 package tracker
 
+// This file contains the implementation of Tracker and its basic methods.
+
 import (
+	"sync"
+
 	"github.com/mum4k/termdash/cell"
+	"github.com/mum4k/termdash/container"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/vexgratia/termon-go/metric"
-	"github.com/vexgratia/termon-go/palette"
 	"github.com/vexgratia/termon-go/template/scroller"
 	"github.com/vexgratia/termon-go/updater"
 )
 
+// A Tracker is a Window type that displays Metric data.
 type Tracker struct {
-	name     string
-	Layout   LayoutFunc
-	Metrics  []*metric.Metric
-	metric   *scroller.Scroller[*metric.Metric]
-	color    *scroller.Scroller[cell.Color]
-	Settings *button.Button
-	Chart    *button.Button
-	Cell     *button.Button
-	Updater  *updater.Updater
+	// general
+	name   string
+	data   []*metric.Metric
+	layout LayoutFunc
+	// sync
+	mu *sync.Mutex
+	// templates
+	metric *scroller.Scroller[*metric.Metric]
+	color  *scroller.Scroller[cell.Color]
+	// widgets
+	settings *button.Button
+	chart    *button.Button
+	cell     *button.Button
+	// external
+	updater *updater.Updater
 }
 
+// New creates a Tracker based on Updater.
 func New(name string, updater *updater.Updater) *Tracker {
-	tracker := &Tracker{
+	// general, external and sync
+	t := &Tracker{
 		name:    name,
-		metric:  scroller.New[*metric.Metric](),
-		color:   scroller.New[cell.Color](),
-		Updater: updater,
+		mu:      &sync.Mutex{},
+		updater: updater,
 	}
-	tracker.Layout = tracker.ChartLayout
-	//
-	tracker.color.Add(palette.All...)
-	tracker.color.SetScrollFunc(
-		func() {
-			tracker.SetColor(tracker.color.Current())
-			tracker.color.Update()
-			tracker.Relayout()
-		},
-	)
-	tracker.color.SetFormatter(ColorFormatter)
-	//
-	tracker.metric.SetScrollFunc(tracker.Relayout)
-	tracker.metric.SetFormatter(MetricFormatter)
-	//
-	return tracker
+	t.layout = t.settingsLayout
+	// templates
+	t.metric = t.makeMetricScroller()
+	t.color = t.makeColorScroller()
+	// widgets
+	t.reset()
+	return t
 }
 
+// Add appends Metric to Tracker.
 func (t *Tracker) Add(metrics ...*metric.Metric) {
 	for _, metric := range metrics {
 		t.metric.Add(metric)
-		t.Metrics = append(t.Metrics, metric)
+		t.data = append(t.data, metric)
 	}
 }
 
-func (t *Tracker) SetColor(color cell.Color) {
-	t.metric.SetColor(color)
-	t.color.SetColor(color)
-	for _, m := range t.Metrics {
-		m.SetColor(color)
-	}
-	t.ResetWidgets()
+// Name returns Tracker name.
+func (t *Tracker) Name() string {
+	return t.name
+}
+
+// Color returns current Tracker color.
+func (t *Tracker) Color() cell.Color {
+	return t.color.Current()
+}
+
+// Opts configurates and returns opts based on current LayoutFunc.
+func (t *Tracker) Opts() []container.Option {
+	opts := t.initOpts()
+	opts = append(opts, t.layout()...)
+	return opts
 }

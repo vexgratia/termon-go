@@ -1,8 +1,14 @@
 package metric
 
+func (m *Metric) parse() {
+	m.tag, m.unit = ParseTable[m.name].Tag, ParseTable[m.name].Unit
+	m.formatter = MetricFormatter(m.unit)
+}
+
+// ParseTable contains parsed Metric data.
 var ParseTable = map[string]struct {
 	Tag  string
-	Type MetricType
+	Unit Unit
 }{
 	"/cgo/go-to-c-calls:calls":                     {"Calls to C", CALLS},
 	"/cpu/classes/gc/mark/assist:cpu-seconds":      {"GC assist", SECONDS},

@@ -8,10 +8,12 @@ import (
 	"github.com/vexgratia/termon-go/format"
 )
 
-type MetricType int
+type ValueFormatter func(value float64) string
+
+type Unit int
 
 const (
-	SECONDS MetricType = iota
+	SECONDS Unit = iota
 	BYTES
 	CALLS
 	OBJECTS
@@ -21,17 +23,8 @@ const (
 	THREADS
 )
 
-func MakeValueFormatter(t MetricType) func(value float64) string {
-	switch t {
-	case SECONDS:
-		return SecondsFormat
-	case BYTES:
-		return BytesFormat
-	default:
-		return NumFormat
-	}
-}
-func (m *Metric) DisplayFormat() []format.Text {
+// displayFormat returns formatted text for Metric display.
+func (m *Metric) displayFormat() []format.Text {
 	return []format.Text{
 		{
 			Text: m.CurrentF(),
@@ -40,9 +33,22 @@ func (m *Metric) DisplayFormat() []format.Text {
 	}
 }
 
-func SecondsFormat(value float64) string {
+// MetricFormatter returns valid ValueFormatter based on Unit.
+func MetricFormatter(t Unit) ValueFormatter {
+	switch t {
+	case SECONDS:
+		return SecondsFormatter
+	case BYTES:
+		return BytesFormatter
+	default:
+		return NumFormatter
+	}
+}
+
+// SecondsFormatter is a ValueFormatter for SECONDS.
+func SecondsFormatter(value float64) string {
 	if value < 1 {
-		return LessSecondFormat(value)
+		return LessSecondFormatter(value)
 	}
 	if value < 60 {
 		return fmt.Sprintf("%6.1f s", value)
@@ -56,7 +62,9 @@ func SecondsFormat(value float64) string {
 	m := (value - float64(h*3600)) / 60
 	return fmt.Sprintf("%4d:%02.0f h", h, m)
 }
-func LessSecondFormat(value float64) string {
+
+// LessSecondFormatter is a helper function for SecondsFormatter.
+func LessSecondFormatter(value float64) string {
 	var format string
 	value *= 1000000000
 	for _, char := range "nµm" {
@@ -68,7 +76,9 @@ func LessSecondFormat(value float64) string {
 	}
 	return fmt.Sprintf("%6.1f", value) + format + "s"
 }
-func BytesFormat(value float64) string {
+
+// BytesFormatter is a ValueFormatter for BYTES.
+func BytesFormatter(value float64) string {
 	var format string
 	if value < 1024 {
 		return fmt.Sprintf("%6.1f", value) + " B"
@@ -84,7 +94,9 @@ func BytesFormat(value float64) string {
 	format = fmt.Sprintf("%6.1f", value) + format + "B"
 	return format
 }
-func NumFormat(value float64) string {
+
+// NumFormatter is a ValueFormatter for any integer Unit.
+func NumFormatter(value float64) string {
 	var format string
 	if value < 1000 {
 		return fmt.Sprintf("%7.0f", value)

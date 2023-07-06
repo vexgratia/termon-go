@@ -16,7 +16,7 @@ func (l *Logger) Color() cell.Color {
 func (l *Logger) Opts() []container.Option {
 	return l.Layout()
 }
-func (l *Logger) Run() {
+func (l *Logger) GetUpdates() {
 	l.Add("Start logging...")
 	for {
 		l.Update()

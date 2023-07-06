@@ -38,7 +38,7 @@ func New(terminal *tcell.Terminal) *Termon {
 	}
 	main, _ := container.New(
 		termon.Terminal,
-		container.ID("Termon"),
+		container.ID("TERMON"),
 		container.Border(linestyle.Round),
 		container.BorderTitle(" TERMON "),
 		container.BorderTitleAlignCenter(),
@@ -47,7 +47,7 @@ func New(terminal *tcell.Terminal) *Termon {
 		container.FocusedColor(cell.ColorWhite),
 		container.SplitHorizontal(
 			container.Top(),
-			container.Bottom(container.ID("Main")),
+			container.Bottom(container.ID("MAIN")),
 			container.SplitPercent(1),
 		),
 	)
@@ -66,7 +66,7 @@ func (t *Termon) Add(windows ...window.Window) {
 			s.Add(w)
 			s.Update()
 		}
-		go w.Run()
+		go w.GetUpdates()
 	}
 }
 

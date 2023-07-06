@@ -1,5 +1,7 @@
 package tracker
 
+// This file contains the implementation of Tracker internal formatting features.
+
 import (
 	"fmt"
 
@@ -10,23 +12,26 @@ import (
 	"github.com/vexgratia/termon-go/palette"
 )
 
-func MetricFormatter(m *metric.Metric) []format.Text {
+// metricFormat returns formatted text for Scroller display.
+func metricFormat(m *metric.Metric) []format.Text {
 	chunk := []format.Text{}
 	tag := format.Text{
-		Text: fmt.Sprintf(" %s:\n", m.Tag),
+		Text: fmt.Sprintf(" %s:\n", m.Tag()),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	value := format.Text{
 		Text: m.CurrentF(),
-		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(m.Color))},
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(m.Color()))},
 	}
 	chunk = append(chunk, tag, value)
 	return chunk
 }
-func ColorFormatter(c cell.Color) []format.Text {
+
+// colorFormat returns formatted text for Scroller display.
+func colorFormat(c cell.Color) []format.Text {
 	chunk := []format.Text{}
 	tag := format.Text{
-		Text: fmt.Sprintf(" Color: \n"),
+		Text: fmt.Sprintf(" Color: "),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
 	}
 	value := format.Text{

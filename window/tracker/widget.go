@@ -1,20 +1,28 @@
 package tracker
 
+// This file contains the implementation of Tracker widgets.
+
 import (
 	"github.com/mum4k/termdash/widgets/button"
 )
 
-func (t *Tracker) ResetWidgets() {
-	t.Settings = t.MakeSettingsButton()
-	t.Chart = t.MakeChartButton()
-	t.Cell = t.MakeCellButton()
+// reset recreates all Tracker widgets.
+//
+// Blocks Tracker mutex to avoid data race.
+func (t *Tracker) reset() {
+	t.mu.Lock()
+	t.settings = t.makeSettingsButton()
+	t.chart = t.makeFocusButton()
+	t.cell = t.makeCellButton()
+	t.mu.Unlock()
 }
 
-func (t *Tracker) MakeSettingsButton() *button.Button {
+// makeSettingsButton creates a button that switches Tracker layout to settingsLayout.
+func (t *Tracker) makeSettingsButton() *button.Button {
 	button, _ := button.New(
 		"SET",
 		func() error {
-			t.SetLayout(t.SettingsLayout)
+			t.setLayout(t.settingsLayout)
 			return nil
 		},
 		button.Height(2),
@@ -23,11 +31,13 @@ func (t *Tracker) MakeSettingsButton() *button.Button {
 	)
 	return button
 }
-func (t *Tracker) MakeChartButton() *button.Button {
+
+// makeSettingsButton creates a button that switches Tracker layout to focusLayout.
+func (t *Tracker) makeFocusButton() *button.Button {
 	button, _ := button.New(
-		"CHART",
+		"FOCUS",
 		func() error {
-			t.SetLayout(t.ChartLayout)
+			t.setLayout(t.focusLayout)
 			return nil
 		},
 		button.Height(2),
@@ -36,11 +46,13 @@ func (t *Tracker) MakeChartButton() *button.Button {
 	)
 	return button
 }
-func (t *Tracker) MakeCellButton() *button.Button {
+
+// makeCellButton creates a button that switches Tracker layout to cellLayout.
+func (t *Tracker) makeCellButton() *button.Button {
 	button, _ := button.New(
 		"CELL",
 		func() error {
-			t.SetLayout(t.CellLayout)
+			t.setLayout(t.cellLayout)
 			return nil
 		},
 		button.Height(2),

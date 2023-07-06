@@ -1,7 +1,6 @@
 package metric
 
-import "github.com/mum4k/termdash/cell"
-
+// Get returns new Metrics from given name set.
 func Get(names []string) []*Metric {
 	metrics := []*Metric{}
 	for _, name := range names {
@@ -10,16 +9,8 @@ func Get(names []string) []*Metric {
 	}
 	return metrics
 }
-func GetColored(names []string, color cell.Color) []*Metric {
-	metrics := []*Metric{}
-	for _, name := range names {
-		m := New(name)
-		m.SetColor(color)
-		metrics = append(metrics, m)
-	}
-	return metrics
-}
 
+// All contains all metric names from Golang metrics/runtime package.
 var All = []string{
 	"/cgo/go-to-c-calls:calls",
 	"/cpu/classes/gc/mark/assist:cpu-seconds",
@@ -67,6 +58,8 @@ var All = []string{
 	"/sched/latencies:seconds",
 	"/sync/mutex/wait/total:seconds",
 }
+
+// CPU contains CPU metric names from Golang metrics/runtime package.
 var CPU = []string{
 	"/cpu/classes/gc/mark/assist:cpu-seconds",
 	"/cpu/classes/gc/mark/dedicated:cpu-seconds",
@@ -80,6 +73,8 @@ var CPU = []string{
 	"/cpu/classes/total:cpu-seconds",
 	"/cpu/classes/user:cpu-seconds",
 }
+
+// GC contains garbage collector metric names from Golang metrics/runtime package.
 var GC = []string{
 	"/gc/cycles/automatic:gc-cycles",
 	"/gc/cycles/forced:gc-cycles",
@@ -97,6 +92,8 @@ var GC = []string{
 	//"/gc/pauses:seconds",
 	"/gc/stack/starting-size:bytes",
 }
+
+// Golang contains exclusive Golang metric names from Golang metrics/runtime package.
 var Golang = []string{
 	"/cgo/go-to-c-calls:calls",
 	"/sched/gomaxprocs:threads",
@@ -104,6 +101,8 @@ var Golang = []string{
 	"/sched/latencies:seconds",
 	"/sync/mutex/wait/total:seconds",
 }
+
+// Memory contains memory metric names from Golang metrics/runtime package.
 var Memory = []string{
 	"/memory/classes/heap/free:bytes",
 	"/memory/classes/heap/objects:bytes",

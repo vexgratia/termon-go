@@ -1,6 +1,10 @@
 package scroller
 
+// This file contains the implementation of Scroller and its basic methods.
+
 import (
+	"sync"
+
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/button"
 	"github.com/mum4k/termdash/widgets/text"
@@ -8,54 +12,63 @@ import (
 	"github.com/vexgratia/termon-go/format"
 )
 
+type ScrollFunc func()
+
+// A Scroller is a Template type that allows scrolling data of type T.
 type Scroller[T any] struct {
-	//
-	name  string
-	Color cell.Color
-	//
-	List *dcl.List[T]
-	//
-	Prev    *button.Button
-	Display *text.Text
-	Next    *button.Button
-	//
-	Formatter func(data T) []format.Text
-	OnScroll  func()
+	// general
+	color cell.Color
+	list  *dcl.List[T]
+	// sync
+	mu *sync.Mutex
+	// widgets
+	prev    *button.Button
+	display *text.Text
+	next    *button.Button
+	// options
+	formatter format.FormatterFunc[T]
+	scroll    ScrollFunc
 }
 
+// New creates a Scroller of type T.
 func New[T any]() *Scroller[T] {
-	scroller := &Scroller[T]{
-		List:      dcl.New[T](),
-		Formatter: format.Default[T],
-		OnScroll:  func() {},
+	// general, sync and opts
+	s := &Scroller[T]{
+		color:     cell.ColorWhite,
+		list:      dcl.New[T](),
+		mu:        &sync.Mutex{},
+		formatter: format.Default[T],
+		scroll:    func() {},
 	}
-	scroller.SetColor(cell.ColorWhite)
-	return scroller
+	// widgets
+	s.reset()
+	return s
 }
-func (s *Scroller[T]) Name() string {
-	return s.name
-}
+
+// Add appends data to Scroller.
 func (s *Scroller[T]) Add(data ...T) {
 	for _, item := range data {
-		s.List.Push(item)
+		s.list.Push(item)
+		s.Update()
 	}
 }
+
+// Color returns current Scroller color.
+func (s *Scroller[T]) Color() cell.Color {
+	return s.color
+}
+
+// Current returns Scroller current value.
 func (s *Scroller[T]) Current() T {
-	return s.List.Peek()
+	return s.list.Peek()
 }
-func (s *Scroller[T]) ScrollNext() {
-	s.List.ScrollNext()
+
+// ScrollNext moves head and tail nodes towards next.
+func (s *Scroller[T]) scrollNext() {
+	s.list.ScrollNext()
 }
-func (s *Scroller[T]) ScrollPrev() {
-	s.List.ScrollPrev()
-}
-func (s *Scroller[T]) SetScrollFunc(scroll func()) {
-	s.OnScroll = scroll
-}
-func (s *Scroller[T]) SetFormatter(formatter func(data T) []format.Text) {
-	s.Formatter = formatter
-}
-func (s *Scroller[T]) SetColor(color cell.Color) {
-	s.Color = color
-	s.ResetWidgets()
+
+// ScrollPrev moves head and tail nodes towards previous.
+func (s *Scroller[T]) scrollPrev() {
+	s.list.ScrollPrev()
 }

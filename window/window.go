@@ -9,5 +9,5 @@ type Window interface {
 	Name() string
 	Color() cell.Color
 	Opts() []container.Option
-	Run()
+	GetUpdates()
 }

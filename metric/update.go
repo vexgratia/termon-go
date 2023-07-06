@@ -8,32 +8,40 @@ import (
 	"github.com/mum4k/termdash/widgets/linechart"
 )
 
-var maxCap = 1000
+// SetColor sets Metric color to given color.
+func (m *Metric) SetColor(color cell.Color) {
+	m.mu.Lock()
+	m.color = color
+	m.mu.Unlock()
+}
 
+// Update updates Metric data and widgets.
 func (m *Metric) Update() {
-	m.UpdateData()
-	m.UpdateWidgets()
+	m.updateData()
+	m.updateWidgets()
 }
-func (m *Metric) UpdateWidgets() {
-	m.UpdateChart()
-	m.UpdateDisplay()
-}
-func (m *Metric) UpdateDisplay() {
-	m.Display.Reset()
-	textChunk := m.DisplayFormat()
-	for _, unit := range textChunk {
-		m.Display.Write(unit.Text, unit.Opts...)
+
+// updateWidgets updates Metric widgets.
+func (m *Metric) updateWidgets() {
+	// display
+	m.display.Reset()
+	for _, text := range m.displayFormat() {
+		m.display.Write(text.Text, text.Opts...)
 	}
+	// chart
+	m.chart.Series(
+		"data", m.data.Collect(),
+		linechart.SeriesCellOpts(cell.FgColor(m.color)))
 }
-func (m *Metric) UpdateChart() {
-	m.Chart.Series(
-		"data", m.Data.Collect(),
-		linechart.SeriesCellOpts(cell.FgColor(m.Color)))
-}
-func (m *Metric) UpdateData() {
+
+// updateData enqueues new data from Golang runtime.
+//
+// Dequeues if queue exceeds capacity.
+func (m *Metric) updateData() {
 	var data float64
-	metrics.Read(m.sample)
-	value := m.sample[0].Value
+	sample := []metrics.Sample{{Name: m.name}}
+	metrics.Read(sample)
+	value := sample[0].Value
 	switch value.Kind() {
 	case metrics.KindUint64:
 		data = float64(value.Uint64())
@@ -46,12 +54,14 @@ func (m *Metric) UpdateData() {
 	default:
 
 	}
-	m.Current = data
-	m.Data.Enqueue(data)
-	if m.Data.Len() >= maxCap {
-		m.Data.Dequeue()
+	m.current = data
+	m.data.Enqueue(data)
+	if m.data.Len() >= maxCap {
+		m.data.Dequeue()
 	}
 }
+
+// medianBucket is a helper function from Golang runtime/metrics example.
 func medianBucket(h *metrics.Float64Histogram) float64 {
 	total := uint64(0)
 	for _, count := range h.Counts {
