@@ -1,5 +1,7 @@
 package logger
 
+// This file contains the implementation of Logger layouts.
+
 import (
 	"strings"
 
@@ -10,9 +12,21 @@ import (
 
 type LayoutFunc func() []container.Option
 
-func (l *Logger) LogLayout() []container.Option {
-	layout := []container.Option{}
-	layout = append(layout, l.MainOpts()...)
+// initOpts creates opts for Logger container.
+func (l *Logger) initOpts() []container.Option {
+	return []container.Option{
+		container.ID(l.name),
+		container.Border(linestyle.Round),
+		container.BorderTitle(" " + strings.ToUpper(l.name) + " "),
+		container.BorderTitleAlignCenter(),
+
+		container.BorderColor(l.Color()),
+		container.FocusedColor(l.Color()),
+	}
+}
+
+// logLayout contains settings button, display and spark.
+func (l *Logger) logLayout() []container.Option {
 	opts := []container.Option{
 		container.SplitHorizontal(
 			container.Top(
@@ -20,23 +34,11 @@ func (l *Logger) LogLayout() []container.Option {
 				container.BorderTitle(" LOG "),
 				container.BorderColor(cell.ColorWhite),
 				container.FocusedColor(cell.ColorWhite),
-				container.PlaceWidget(l.Display),
+				container.PlaceWidget(l.display),
 			),
-			container.Bottom(container.PlaceWidget(l.Spark)),
+			container.Bottom(container.PlaceWidget(l.spark)),
 			container.SplitPercent(85),
 		),
 	}
-	layout = append(layout, opts...)
-	return layout
-}
-func (l *Logger) MainOpts() []container.Option {
-	return []container.Option{
-		container.ID(l.name),
-		container.Border(linestyle.Round),
-		container.BorderTitle(" " + strings.ToUpper(l.name) + " "),
-		container.BorderTitleAlignCenter(),
-
-		container.BorderColor(l.color),
-		container.FocusedColor(l.color),
-	}
+	return opts
 }

@@ -15,7 +15,7 @@ func (m *Metric) SetColor(color cell.Color) {
 	m.mu.Unlock()
 }
 
-// Update updates Metric data and widgets.
+// update updates Metric data and widgets.
 func (m *Metric) Update() {
 	m.updateData()
 	m.updateWidgets()

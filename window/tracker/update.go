@@ -37,16 +37,9 @@ func (t *Tracker) setLayout(layout LayoutFunc) {
 }
 
 // reColor colors all Tracker templates, widgets and metrics to current color.
+//
+// Calls relayout.
 func (t *Tracker) reColor() {
-	// // metrics
-	// color := t.color.Current()
-	// for _, m := range t.data {
-	// 	m.SetColor(color)
-	// }
-	// // widgets
 	t.reset()
-	// // templates
-	// t.color.SetColor(color)
-	// t.metric.SetColor(color)
 	t.relayout()
 }

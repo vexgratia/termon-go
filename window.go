@@ -35,15 +35,13 @@ func (t *Termon) MakeWindows() {
 	memory.Add(metric.Get(metric.Memory)...)
 	//
 	infoLog := logger.New("Info", t.Updater)
-	infoLog.SetColor(cell.ColorBlue)
 	t.Logger["Info"] = infoLog
 	//
 	warnLog := logger.New("Warn", t.Updater)
-	warnLog.SetColor(cell.ColorYellow)
 	t.Logger["Warn"] = warnLog
 	//
 	errLog := logger.New("Error", t.Updater)
-	errLog.SetColor(cell.ColorRed)
 	t.Logger["Error"] = errLog
+	//
 	t.Add(golang, memory, cpu, gc, infoLog, warnLog, errLog)
 }

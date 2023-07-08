@@ -1,5 +1,7 @@
 package tracker
 
+// This file contains the implementation of Tracker templates.
+
 import (
 	"github.com/mum4k/termdash/cell"
 	"github.com/vexgratia/termon-go/metric"
