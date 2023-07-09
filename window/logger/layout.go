@@ -5,8 +5,8 @@ package logger
 import (
 	"strings"
 
-	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
+	"github.com/mum4k/termdash/container/grid"
 	"github.com/mum4k/termdash/linestyle"
 )
 
@@ -25,19 +25,38 @@ func (l *Logger) initOpts() []container.Option {
 	}
 }
 
+// settingsLayout contains tickScroller, colorScroller, cell and chart buttons.
+func (l *Logger) settingsLayout() []container.Option {
+	builder := grid.New()
+	builder.Add(
+		grid.RowHeightPerc(25,
+			grid.Widget(l.log),
+		),
+	)
+	builder.Add(
+		grid.RowHeightPercWithOpts(25, l.color.Layout()),
+	)
+	opts, _ := builder.Build()
+	return opts
+}
+
 // logLayout contains settings button, display and spark.
 func (l *Logger) logLayout() []container.Option {
 	opts := []container.Option{
 		container.SplitHorizontal(
 			container.Top(
-				container.Border(linestyle.Round),
-				container.BorderTitle(" LOG "),
-				container.BorderColor(cell.ColorWhite),
-				container.FocusedColor(cell.ColorWhite),
+				container.SplitVertical(
+					container.Left(
+						container.PlaceWidget(l.settings),
+					),
+					container.Right(container.PlaceWidget(l.spark)),
+					container.SplitPercent(25),
+				),
+			),
+			container.Bottom(
 				container.PlaceWidget(l.display),
 			),
-			container.Bottom(container.PlaceWidget(l.spark)),
-			container.SplitPercent(85),
+			container.SplitPercent(30),
 		),
 	}
 	return opts

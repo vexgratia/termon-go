@@ -32,6 +32,7 @@ type Logger struct {
 	color *scroller.Scroller[cell.Color]
 	// widgets
 	settings *button.Button
+	log      *button.Button
 	display  *text.Text
 	spark    *sparkline.SparkLine
 	// external
