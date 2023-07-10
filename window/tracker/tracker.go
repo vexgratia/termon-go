@@ -4,6 +4,7 @@ package tracker
 
 import (
 	"sync"
+	"time"
 
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/container"
@@ -23,6 +24,7 @@ type Tracker struct {
 	mu *sync.Mutex
 	// templates
 	metric *scroller.Scroller[*metric.Metric]
+	tick   *scroller.Scroller[time.Duration]
 	color  *scroller.Scroller[cell.Color]
 	// widgets
 	settings *button.Button
@@ -44,6 +46,7 @@ func New(name string, updater *updater.Updater) *Tracker {
 	// templates
 	t.metric = t.makeMetricScroller()
 	t.color = t.makeColorScroller()
+	t.tick = t.makeTickScroller()
 	// widgets
 	t.reset()
 	return t
@@ -65,6 +68,11 @@ func (t *Tracker) Name() string {
 // Color returns current Tracker color.
 func (t *Tracker) Color() cell.Color {
 	return t.color.Current()
+}
+
+// Color returns current Tracker color.
+func (t *Tracker) Tick() time.Duration {
+	return t.tick.Current()
 }
 
 // Opts configurates and returns opts based on current LayoutFunc.

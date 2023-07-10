@@ -33,6 +33,7 @@ func (t *Tracker) settingsLayout() []container.Option {
 		),
 	)
 	builder.Add(
+		grid.RowHeightPercWithOpts(25, t.tick.Layout()),
 		grid.RowHeightPercWithOpts(25, t.color.Layout()),
 	)
 	opts, _ := builder.Build()

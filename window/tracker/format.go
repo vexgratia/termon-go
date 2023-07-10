@@ -4,6 +4,7 @@ package tracker
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/mum4k/termdash/cell"
 	"github.com/mum4k/termdash/widgets/text"
@@ -13,7 +14,7 @@ import (
 )
 
 // metricFormat returns formatted text for Scroller display.
-func metricFormat(m *metric.Metric) []format.Text {
+func (t *Tracker) metricFormat(m *metric.Metric) []format.Text {
 	chunk := []format.Text{}
 	tag := format.Text{
 		Text: fmt.Sprintf(" %s:\n", m.Tag()),
@@ -28,7 +29,7 @@ func metricFormat(m *metric.Metric) []format.Text {
 }
 
 // colorFormat returns formatted text for Scroller display.
-func colorFormat(c cell.Color) []format.Text {
+func (t *Tracker) colorFormat(c cell.Color) []format.Text {
 	chunk := []format.Text{}
 	tag := format.Text{
 		Text: fmt.Sprintf(" Color: "),
@@ -37,6 +38,21 @@ func colorFormat(c cell.Color) []format.Text {
 	value := format.Text{
 		Text: " " + palette.String(c),
 		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(c))},
+	}
+	chunk = append(chunk, tag, value)
+	return chunk
+}
+
+// tickFormat returns formatted text for Scroller display.
+func (t *Tracker) tickFormat(tick time.Duration) []format.Text {
+	chunk := []format.Text{}
+	tag := format.Text{
+		Text: fmt.Sprintf(" Tick:\n"),
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(cell.ColorWhite))},
+	}
+	value := format.Text{
+		Text: fmt.Sprintf("%v", tick),
+		Opts: []text.WriteOption{text.WriteCellOpts(cell.FgColor(t.Color()))},
 	}
 	chunk = append(chunk, tag, value)
 	return chunk

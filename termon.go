@@ -17,7 +17,7 @@ import (
 	"github.com/vexgratia/termon-go/window/selecter"
 )
 
-var tick = 50 * time.Millisecond
+var tick = 5 * time.Millisecond
 var maxWindows = 8
 
 type Termon struct {

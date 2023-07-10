@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-var tick = 5 * time.Millisecond
-
 // update updates Tracker metrics, templates and widgets.
 func (t *Tracker) update() {
 	for _, m := range t.data {
@@ -19,7 +17,7 @@ func (t *Tracker) update() {
 func (t *Tracker) GetUpdates() {
 	for {
 		t.update()
-		time.Sleep(tick)
+		time.Sleep(t.Tick())
 	}
 }
 
